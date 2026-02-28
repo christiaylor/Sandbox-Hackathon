@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TOS Guardian</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 320px;
+      background: #0d0d0f;
+      color: #e8e6df;
+      font-family: 'Georgia', serif;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a0a08 0%, #160814 100%);
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .shield { font-size: 24px; }
+
+    .app-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff6e3c;
+      letter-spacing: 0.5px;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: #666;
+      font-style: italic;
+      margin-left: 34px;
+    }
+
+    .body {
+      padding: 18px 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: #16161f;
+      border: 1px solid #2a2a35;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #e8e6df;
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: #ff6e3c;
+    }
+
+    .save-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #ff4a1c, #ff6e3c);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .save-btn:hover { opacity: 0.85; }
+
+    .status {
+      margin-top: 8px;
+      font-size: 11px;
+      text-align: center;
+      height: 16px;
+      color: #60c060;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #1e1e26;
+      margin: 16px 0;
+    }
+
+    .scan-btn {
+      width: 100%;
+      background: rgba(255,74,28,0.08);
+      border: 1px solid rgba(255,74,28,0.25);
+      color: #ff8060;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .scan-btn:hover {
+      background: rgba(255,74,28,0.15);
+    }
+
+    .how-it-works {
+      margin-top: 14px;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    .how-it-works span {
+      color: #ff6e3c;
+    }
+
+    a {
+      color: #ff8060;
+      text-decoration: none;
+      font-size: 11px;
+    }
+    a:hover { text-decoration: underline; }
+
+    .key-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <span class="shield">🛡️</span>
+      <span class="app-name">TOS Guardian</span>
+    </div>
+    <div class="tagline">Reads the fine print so you don't have to</div>
+  </div>
+
+  <div class="body">
+    <div class="key-row">
+      <label>Google AI Studio Key</label>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">Get key →</a>
+    </div>
+    <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
+    <button class="save-btn" id="saveBtn">Save Key</button>
+    <div class="status" id="status"></div>
+
+    <hr class="divider">
+
+    <button class="scan-btn" id="scanBtn">🔍 Scan This Page Now</button>
+
+    <div class="how-it-works">
+      TOS Guardian <span>auto-detects</span> Terms & Conditions pages and shows a panel to analyze red flags with AI. Use "Scan This Page" to trigger it manually on any page.
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
