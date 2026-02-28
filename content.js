@@ -40,7 +40,7 @@
     const formsText = Array.from(document.querySelectorAll('form'))
       .map((el) => (el.innerText || el.textContent || '').toLowerCase())
       .join(' ');
-    const authPath = /\/(sign[-_ ]?up|signup|register|create[-_ ]?account|join|new|trial)\b/.test(url);
+    const authPath = /\/(sign[-_ ]?up|signup|register|create[-_ ]?account|join|auth|login)\b/.test(url);
 
     const hasSignupLanguage = ACCOUNT_KEYWORDS.some(kw =>
       title.includes(kw) || url.includes(kw.replace(/\s+/g, '')) || headings.includes(kw) || buttonText.includes(kw)
@@ -49,8 +49,11 @@
     const hasPassword = !!document.querySelector('input[type="password"]');
     const hasEmail = !!document.querySelector('input[type="email"], input[name*="email" i], input[id*="email" i]');
     const hasConsentLanguage = /terms|privacy|agree|consent|policy/.test(formsText);
+    const hasLegalAgreementAnchors = !!document.querySelector('a[href*="terms" i], a[href*="privacy" i], a[href*="legal" i]');
+    const hasSocialAuth = /(continue|sign|log).*(google|github|gitlab|apple|microsoft|facebook)|google|github|gitlab|apple|microsoft|facebook/.test(buttonText);
+    const hasAuthUiElements = hasEmail || hasPassword || hasSocialAuth;
 
-    return (hasPassword && hasEmail && (hasSignupLanguage || authPath)) || ((hasSignupLanguage || authPath) && hasConsentLanguage);
+    return (hasSignupLanguage || authPath) && (hasAuthUiElements || hasConsentLanguage || hasLegalAgreementAnchors);
   }
 
   function findLegalLinks() {
@@ -104,6 +107,49 @@
     return scored[0]?.link || links[0];
   }
 
+  function pickServiceLegalBundleLinks(links) {
+    if (!links || links.length === 0) return [];
+    const scored = links
+      .map((link) => {
+        const text = `${link.text || ''} ${link.href || ''}`.toLowerCase();
+        let score = 0;
+        let type = 'other';
+        if (text.includes('terms of service') || text.includes('terms and conditions') || text.includes('/terms')) {
+          score += 10;
+          type = 'terms';
+        } else if (text.includes('privacy policy') || text.includes('/privacy')) {
+          score += 9;
+          type = 'privacy';
+        } else if (text.includes('legal')) {
+          score += 4;
+        }
+        return { link, score, type };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    const terms = scored.find((s) => s.type === 'terms');
+    const privacy = scored.find((s) => s.type === 'privacy');
+    const selected = [];
+    if (terms) selected.push(terms.link);
+    if (privacy && (!terms || privacy.link.href !== terms.link.href)) selected.push(privacy.link);
+    if (selected.length === 0 && scored[0]) selected.push(scored[0].link);
+    return selected.slice(0, 2);
+  }
+
+  function buildFallbackLegalLinks(pageUrl) {
+    try {
+      const origin = new URL(pageUrl).origin;
+      return [
+        { text: 'Terms of Service', href: `${origin}/terms` },
+        { text: 'Terms of Service', href: `${origin}/legal/terms` },
+        { text: 'Privacy Policy', href: `${origin}/privacy` },
+        { text: 'Privacy Policy', href: `${origin}/legal/privacy` },
+      ];
+    } catch {
+      return [];
+    }
+  }
+
   function extractPageText() {
     // Remove scripts, styles, nav, footer to get main content
     const clone = document.body.cloneNode(true);
@@ -124,8 +170,8 @@
       : '🧾 Account Creation Page Detected';
     const hintText = context.tosPage
       ? 'Summarize this policy in plain English.'
-      : 'Found account flow signals. We will summarize the best Terms/Privacy link we can find.';
-    const analyzeLabel = context.tosPage ? 'Summarize' : 'Summarize Terms Link';
+      : 'Found an account creation flow. Summarize will analyze Terms/Privacy documents for this service.';
+    const analyzeLabel = context.tosPage ? 'Summarize' : 'Summarize Docs';
 
     const panel = document.createElement('div');
     panel.id = 'tos-guardian-panel';
@@ -144,7 +190,6 @@
         <div id="tg-status">
           ${isDetected ? `<div class="tg-detected-badge">${badgeText}</div>` : ''}
           <p class="tg-hint">${hintText}</p>
-          <div id="tg-link-results"></div>
         </div>
         <div id="tg-results" style="display:none"></div>
       </div>
@@ -276,31 +321,6 @@
         margin: 0;
         font-style: italic;
       }
-      #tg-link-results {
-        margin-top: 10px;
-      }
-      .tg-link-title {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--tg-gold);
-        margin-bottom: 6px;
-      }
-      .tg-link-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        border: 1px solid var(--tg-border);
-        border-radius: 8px;
-        padding: 8px 10px;
-        margin-bottom: 6px;
-      }
-      .tg-link-name {
-        color: var(--tg-body);
-        font-size: 11px;
-        line-height: 1.3;
-      }
       .tg-link-open {
         color: var(--tg-gold);
         font-size: 11px;
@@ -416,29 +436,6 @@
     document.getElementById('tg-analyze-btn').textContent = analyzeLabel;
     document.getElementById('tg-close-btn').onclick = () => panel.remove();
     document.getElementById('tg-analyze-btn').onclick = () => startAnalysis();
-    renderLegalLinks(context.legalLinks);
-  }
-
-  function renderLegalLinks(links) {
-    const container = document.getElementById('tg-link-results');
-    if (!container) return;
-    if (!links.length) {
-      container.innerHTML = '';
-      return;
-    }
-
-    const html = links.map((link) => `
-      <div class="tg-link-item">
-        <div class="tg-link-name">${escapeHtml(link.text || 'Legal link')}</div>
-        <a class="tg-link-open" href="${escapeHtml(link.href)}" target="_blank" rel="noopener noreferrer">Open</a>
-      </div>
-    `).join('');
-
-    container.innerHTML = `
-      <div class="tg-link-title">Likely Terms / Privacy Links</div>
-      ${html}
-      <p class="tg-hint" style="margin-top:4px">Open a legal link, then use Summarize on that page.</p>
-    `;
   }
 
   async function startAnalysis() {
@@ -455,10 +452,16 @@
 
     const pageLastModified = document.lastModified || null;
     const pageUrl = window.location.href;
-    const primaryLink = !context.tosPage ? pickPrimaryLegalLink(context.legalLinks) : null;
-    const message = primaryLink
-      ? { type: 'ANALYZE_TOS_URL', url: primaryLink.href }
-      : { type: 'ANALYZE_TOS', text: extractPageText(), url: pageUrl, pageLastModified };
+    const candidateLinks = context.tosPage
+      ? []
+      : [...context.legalLinks, ...buildFallbackLegalLinks(pageUrl)];
+    const bundleLinks = pickServiceLegalBundleLinks(candidateLinks);
+    const primaryLink = pickPrimaryLegalLink(candidateLinks);
+    const message = bundleLinks.length >= 2
+      ? { type: 'ANALYZE_TOS_URLS', urls: bundleLinks.map((l) => l.href) }
+      : primaryLink
+        ? { type: 'ANALYZE_TOS_URL', url: primaryLink.href }
+        : { type: 'ANALYZE_TOS', text: extractPageText(), url: pageUrl, pageLastModified };
 
     chrome.runtime.sendMessage(message, (response) => {
       btn.disabled = false;
@@ -494,6 +497,12 @@
 
     if (data.analyzed_url) {
       html += `<div class="tg-hint" style="margin-bottom:8px">Summarized: <a class="tg-link-open" href="${escapeHtml(data.analyzed_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.analyzed_url)}</a></div>`;
+    }
+    if (Array.isArray(data.analyzed_urls) && data.analyzed_urls.length) {
+      const links = data.analyzed_urls
+        .map((u) => `<a class="tg-link-open" href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer">${escapeHtml(u)}</a>`)
+        .join(', ');
+      html += `<div class="tg-hint" style="margin-bottom:8px">Summarized docs: ${links}</div>`;
     }
 
     if (data.cache_status) {
@@ -558,7 +567,7 @@
 
   // Run detection
   const pageContext = detectPageContext();
-  const shouldAutoInject = pageContext.tosPage || (pageContext.accountPage && pageContext.legalLinks.length > 0);
+  const shouldAutoInject = pageContext.tosPage || pageContext.accountPage;
   if (shouldAutoInject) {
     // Small delay to let page fully render
     setTimeout(() => injectPanel(pageContext), 1200);

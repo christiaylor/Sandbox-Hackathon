@@ -24,6 +24,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === "ANALYZE_TOS_URLS") {
+    analyzePolicyFromUrls(Array.isArray(message.urls) ? message.urls : [])
+      .then(sendResponse)
+      .catch((err) => sendResponse({ error: err.message }));
+    return true;
+  }
+
   if (message.type === "GET_POLICY_HISTORY") {
     getPolicyHistory(message.query || "", message.limit || 30)
       .then((result) => sendResponse({ ok: true, ...result }))
@@ -63,6 +70,58 @@ async function analyzePolicyFromUrl(policyUrl) {
   return {
     ...analysis,
     analyzed_url: policyUrl,
+  };
+}
+
+async function analyzePolicyFromUrls(policyUrls) {
+  const normalized = Array.from(new Set(policyUrls.filter(Boolean).map((u) => String(u).trim()))).slice(0, 3);
+  if (normalized.length === 0) {
+    return { error: "No Terms/Privacy URLs provided." };
+  }
+
+  const docs = [];
+  for (const url of normalized) {
+    const response = await fetch(url, { method: "GET" });
+    if (!response.ok) {
+      throw new Error(`Failed to load policy page (${response.status}) for ${url}`);
+    }
+
+    const contentType = (response.headers.get("content-type") || "").toLowerCase();
+    if (!contentType.includes("text/html") && !contentType.includes("text/plain")) {
+      throw new Error(`Policy link did not return readable HTML/text: ${url}`);
+    }
+
+    const raw = await response.text();
+    const text = extractTextFromHtml(raw);
+    if (text && text.length >= 200) {
+      docs.push({ url, text });
+    }
+  }
+
+  if (docs.length === 0) {
+    throw new Error("Could not extract enough policy text from linked documents.");
+  }
+
+  const combined = docs
+    .map((d, i) => `DOCUMENT ${i + 1}: ${d.url}\n${d.text}`)
+    .join("\n\n");
+
+  let origin = "https://tos-guardian.local";
+  try {
+    origin = new URL(docs[0].url).origin;
+  } catch {}
+  const bundleId = await hashText(docs.map((d) => d.url).sort().join("|"));
+  const bundleUrl = `${origin}/__legal_bundle__/${bundleId}`;
+
+  const analysis = await analyzePolicy({
+    text: combined,
+    url: bundleUrl,
+    pageLastModified: null,
+  });
+
+  return {
+    ...analysis,
+    analyzed_urls: docs.map((d) => d.url),
   };
 }
 
