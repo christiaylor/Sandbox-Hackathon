@@ -17,6 +17,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === "ANALYZE_TOS_URL") {
+    analyzePolicyFromUrl(message.url || "")
+      .then(sendResponse)
+      .catch((err) => sendResponse({ error: err.message }));
+    return true;
+  }
+
   if (message.type === "GET_POLICY_HISTORY") {
     getPolicyHistory(message.query || "", message.limit || 30)
       .then((result) => sendResponse({ ok: true, ...result }))
@@ -24,6 +31,54 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+async function analyzePolicyFromUrl(policyUrl) {
+  if (!policyUrl) {
+    return { error: "No Terms/Privacy URL provided." };
+  }
+
+  const response = await fetch(policyUrl, { method: "GET" });
+  if (!response.ok) {
+    throw new Error(`Failed to load policy page (${response.status}).`);
+  }
+
+  const contentType = (response.headers.get("content-type") || "").toLowerCase();
+  if (!contentType.includes("text/html") && !contentType.includes("text/plain")) {
+    throw new Error("Policy link did not return readable HTML/text.");
+  }
+
+  const raw = await response.text();
+  const text = extractTextFromHtml(raw);
+  if (!text || text.length < 200) {
+    throw new Error("Policy content was too short to summarize.");
+  }
+
+  const sourceLastModified = response.headers.get("last-modified");
+  const analysis = await analyzePolicy({
+    text,
+    url: policyUrl,
+    pageLastModified: sourceLastModified,
+  });
+
+  return {
+    ...analysis,
+    analyzed_url: policyUrl,
+  };
+}
+
+function extractTextFromHtml(html) {
+  const stripped = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return stripped.substring(0, 12000);
+}
 
 async function analyzePolicy({ text, url, pageLastModified }) {
   const contentHash = await hashText(text || "");

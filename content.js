@@ -37,17 +37,20 @@
     const buttonText = Array.from(document.querySelectorAll('button, [role="button"], input[type="submit"]'))
       .map(el => (el.value || el.textContent || '').toLowerCase())
       .join(' ');
+    const formsText = Array.from(document.querySelectorAll('form'))
+      .map((el) => (el.innerText || el.textContent || '').toLowerCase())
+      .join(' ');
+    const authPath = /\/(sign[-_ ]?up|signup|register|create[-_ ]?account|join|new|trial)\b/.test(url);
 
     const hasSignupLanguage = ACCOUNT_KEYWORDS.some(kw =>
       title.includes(kw) || url.includes(kw.replace(/\s+/g, '')) || headings.includes(kw) || buttonText.includes(kw)
     );
 
     const hasPassword = !!document.querySelector('input[type="password"]');
-    const hasEmailOrUsername = !!document.querySelector('input[type="email"], input[name*="email" i], input[name*="user" i], input[id*="email" i], input[id*="user" i]');
-    const hasTermsConsent = !!document.querySelector('label, .checkbox, .consent, .tos, .terms')
-      && /terms|privacy|agree|consent|policy/i.test(document.body.innerText.slice(0, 5000));
+    const hasEmail = !!document.querySelector('input[type="email"], input[name*="email" i], input[id*="email" i]');
+    const hasConsentLanguage = /terms|privacy|agree|consent|policy/.test(formsText);
 
-    return (hasSignupLanguage && (hasPassword || hasEmailOrUsername)) || hasTermsConsent;
+    return (hasPassword && hasEmail && (hasSignupLanguage || authPath)) || ((hasSignupLanguage || authPath) && hasConsentLanguage);
   }
 
   function findLegalLinks() {
@@ -82,6 +85,25 @@
     return { tosPage, accountPage, legalLinks };
   }
 
+  function pickPrimaryLegalLink(links) {
+    if (!links || links.length === 0) return null;
+    const scored = links
+      .map((link) => {
+        const text = `${link.text || ''} ${link.href || ''}`.toLowerCase();
+        let score = 0;
+        if (text.includes('terms of service')) score += 6;
+        if (text.includes('terms and conditions')) score += 6;
+        if (text.includes('/terms')) score += 5;
+        if (text.includes('privacy policy')) score += 4;
+        if (text.includes('/privacy')) score += 3;
+        if (text.includes('legal')) score += 1;
+        return { link, score };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    return scored[0]?.link || links[0];
+  }
+
   function extractPageText() {
     // Remove scripts, styles, nav, footer to get main content
     const clone = document.body.cloneNode(true);
@@ -102,8 +124,8 @@
       : '🧾 Account Creation Page Detected';
     const hintText = context.tosPage
       ? 'Summarize this policy in plain English.'
-      : 'Found account flow signals. Review legal links before creating your account.';
-    const analyzeLabel = context.tosPage ? 'Summarize' : 'Summarize This Page';
+      : 'Found account flow signals. We will summarize the best Terms/Privacy link we can find.';
+    const analyzeLabel = context.tosPage ? 'Summarize' : 'Summarize Terms Link';
 
     const panel = document.createElement('div');
     panel.id = 'tos-guardian-panel';
@@ -423,6 +445,7 @@
     const btn = document.getElementById('tg-analyze-btn');
     const results = document.getElementById('tg-results');
     const status = document.getElementById('tg-status');
+    const context = detectPageContext();
 
     btn.disabled = true;
     btn.textContent = 'Analyzing...';
@@ -430,12 +453,14 @@
     results.style.display = 'block';
     results.innerHTML = `<div class="tg-loading"><div class="tg-spinner"></div> Reading the fine print…</div>`;
 
-    const text = extractPageText();
     const pageLastModified = document.lastModified || null;
     const pageUrl = window.location.href;
+    const primaryLink = !context.tosPage ? pickPrimaryLegalLink(context.legalLinks) : null;
+    const message = primaryLink
+      ? { type: 'ANALYZE_TOS_URL', url: primaryLink.href }
+      : { type: 'ANALYZE_TOS', text: extractPageText(), url: pageUrl, pageLastModified };
 
-    // Send to background for API call
-    chrome.runtime.sendMessage({ type: 'ANALYZE_TOS', text, url: pageUrl, pageLastModified }, (response) => {
+    chrome.runtime.sendMessage(message, (response) => {
       btn.disabled = false;
       btn.textContent = 'Re-analyze';
 
@@ -466,6 +491,10 @@
     const lowFlags = flags.filter(f => f.severity === 'LOW');
 
     let html = '';
+
+    if (data.analyzed_url) {
+      html += `<div class="tg-hint" style="margin-bottom:8px">Summarized: <a class="tg-link-open" href="${escapeHtml(data.analyzed_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(data.analyzed_url)}</a></div>`;
+    }
 
     if (data.cache_status) {
       const cacheLabel = data.cache_status === 'HIT'
@@ -529,7 +558,8 @@
 
   // Run detection
   const pageContext = detectPageContext();
-  if (pageContext.tosPage || pageContext.accountPage) {
+  const shouldAutoInject = pageContext.tosPage || (pageContext.accountPage && pageContext.legalLinks.length > 0);
+  if (shouldAutoInject) {
     // Small delay to let page fully render
     setTimeout(() => injectPanel(pageContext), 1200);
   }
