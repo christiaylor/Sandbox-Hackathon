@@ -1,491 +1,156 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TOS Guardian — Know What You're Signing</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
 /* ─────────────────────────────────────────
    THEME TOKENS
 ───────────────────────────────────────── */
-:root {
-  --transition-speed: 0.3s;
+:root { --transition-speed: 0.3s; }
+
+[data-theme="dark"]{
+  --bg:#060d1a;--bg-surface:#0a1427;--bg-raised:#0f1e38;--bg-card:rgba(255,255,255,0.04);
+  --bg-card-hov:rgba(255,255,255,0.07);--text-head:#f0ece3;--text-body:#c8d0db;--text-muted:#7a8799;
+  --text-faint:rgba(255,255,255,0.32);--border:rgba(210,172,45,0.16);--border-ui:rgba(255,255,255,0.09);
+  --gold:#D4AF37;--gold-bright:#F1C85A;--gold-glow:rgba(212,175,55,0.18);--red-flag:#e05252;
+  --amber-flag:#c98a20;--blue-flag:#4a8fc2;--hero-glow:rgba(212,175,55,0.07);--nav-bg:rgba(6,13,26,0.96);
+  --shadow-card:0 4px 32px rgba(0,0,0,0.4);
 }
 
-[data-theme="dark"] {
-  --bg:           #060d1a;
-  --bg-surface:   #0a1427;
-  --bg-raised:    #0f1e38;
-  --bg-card:      rgba(255,255,255,0.04);
-  --bg-card-hov:  rgba(255,255,255,0.07);
-  --text-head:    #f0ece3;
-  --text-body:    #c8d0db;
-  --text-muted:   #7a8799;
-  --text-faint:   rgba(255,255,255,0.32);
-  --border:       rgba(210,172,45,0.16);
-  --border-ui:    rgba(255,255,255,0.09);
-  --gold:         #D4AF37;
-  --gold-bright:  #F1C85A;
-  --gold-glow:    rgba(212,175,55,0.18);
-  --red-flag:     #e05252;
-  --amber-flag:   #c98a20;
-  --blue-flag:    #4a8fc2;
-  --hero-glow:    rgba(212,175,55,0.07);
-  --nav-bg:       rgba(6,13,26,0.96);
-  --shadow-card:  0 4px 32px rgba(0,0,0,0.4);
+[data-theme="light"]{
+  --bg:#fcfbf7;--bg-surface:#ffffff;--bg-raised:#f4f2ed;--bg-card:#ffffff;--bg-card-hov:#fcfbf7;
+  --text-head:#1a1d23;--text-body:#454b54;--text-muted:#828a94;--text-faint:rgba(0,0,0,0.08);
+  --border:rgba(180,150,60,0.25);--border-ui:rgba(0,0,0,0.08);--gold:#b38f2d;--gold-bright:#8c6d1a;
+  --gold-glow:rgba(180,150,60,0.12);--red-flag:#d63031;--amber-flag:#e67e22;--blue-flag:#2980b9;
+  --hero-glow:rgba(180,150,60,0.06);--nav-bg:rgba(252,251,247,0.96);--shadow-card:0 10px 40px rgba(0,0,0,0.06);
 }
 
-[data-theme="light"] {
-  --bg:           #fcfbf7;
-  --bg-surface:   #ffffff;
-  --bg-raised:    #f4f2ed;
-  --bg-card:      #ffffff;
-  --bg-card-hov:  #fcfbf7;
-  --text-head:    #1a1d23;
-  --text-body:    #454b54;
-  --text-muted:   #828a94;
-  --text-faint:   rgba(0,0,0,0.08);
-  --border:       rgba(180,150,60,0.25);
-  --border-ui:    rgba(0,0,0,0.08);
-  --gold:         #b38f2d;
-  --gold-bright:  #8c6d1a;
-  --gold-glow:    rgba(180,150,60,0.12);
-  --red-flag:     #d63031;
-  --amber-flag:   #e67e22;
-  --blue-flag:    #2980b9;
-  --hero-glow:    rgba(180,150,60,0.06);
-  --nav-bg:       rgba(252,251,247,0.96);
-  --shadow-card:  0 10px 40px rgba(0,0,0,0.06);
+/* Reset & Base */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+[id]{scroll-margin-top:100px}
+body{
+  background:var(--bg);color:var(--text-body);font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  line-height:1.7;transition:background var(--transition-speed),color var(--transition-speed);overflow-x:hidden;position:relative;
 }
 
-/* ── Reset & Base ── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+h1,h2,.nav-logo-text{font-family:'Playfair Display',serif;color:var(--text-head);letter-spacing:-0.02em;transition:color var(--transition-speed)}
+em{font-style:italic;color:var(--gold)}
 
-/* Add this to fix the header overlap */
-[id] {
-  scroll-margin-top: 100px;
+/* NAV */
+nav{
+  position:fixed;top:0;width:100%;height:80px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 6%;background:var(--nav-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border-ui);z-index:1000;transition:background var(--transition-speed),border-color var(--transition-speed)
 }
-    
-body {
-  background: var(--bg);
-  color: var(--text-body);
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  line-height: 1.7;
-  transition: background var(--transition-speed), color var(--transition-speed);
-  overflow-x: hidden;
-  position: relative;
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-mark{font-size:24px}
+.nav-logo-text{font-size:22px;font-weight:900}
+.nav-logo-text span{font-weight:400;opacity:0.7}
+.nav-right{display:flex;align-items:center;gap:24px}
+.theme-toggle{
+  background:none;border:1px solid var(--border-ui);padding:6px 14px;border-radius:20px;color:var(--text-muted);cursor:pointer;
+  display:flex;align-items:center;gap:8px;font-family:'Courier Prime',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s
 }
+.theme-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.nav-cta{background:var(--gold);color:#fff;padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:1px;transition:0.2s}
+.nav-cta:hover{background:var(--gold-bright);transform:translateY(-1px)}
 
-h1, h2, .nav-logo-text {
-  font-family: 'Playfair Display', serif;
-  color: var(--text-head);
-  letter-spacing: -0.02em;
-  transition: color var(--transition-speed);
-}
+/* Hero */
+.hero{padding:220px 6% 120px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+.hero::after{content:"";position:absolute;top:15%;width:50vw;height:50vw;background:radial-gradient(circle,var(--hero-glow) 0%,transparent 70%);z-index:-1;transition:background var(--transition-speed)}
+.hero-inner{max-width:880px}
+.hero-eyebrow{font-family:'Courier Prime',monospace;color:var(--gold);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:24px}
+.hero h1{font-size:clamp(48px,8vw,84px);line-height:1.05;margin-bottom:32px}
+.hero-sub{font-size:clamp(18px,2.2vw,22px);color:var(--text-muted);max-width:640px;margin:0 auto 48px;font-weight:300;transition:color var(--transition-speed)}
+.btn-primary{display:inline-flex;align-items:center;gap:12px;background:var(--gold);color:#fff;padding:20px 40px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:16px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:1px;transition:0.3s;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+.btn-primary:hover{background:var(--gold-bright);transform:translateY(-3px);box-shadow:0 15px 40px var(--gold-glow)}
+.hero-note{display:block;margin-top:20px;font-family:'Courier Prime',monospace;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px}
+.download-instructions{color:var(--gold);font-size:13px;text-decoration:none;border-bottom:1px solid transparent;transition:0.2s;margin-top:8px;display:inline-block}
+.download-instructions:hover{border-bottom-color:var(--gold)}
 
-em { font-style: italic; color: var(--gold); }
+/* Trust Bar */
+.trust-bar{border-top:1px solid var(--border-ui);border-bottom:1px solid var(--border-ui);background:var(--bg-surface);padding:30px 6%;transition:background var(--transition-speed),border-color var(--transition-speed)}
+.trust-bar-inner{display:flex;justify-content:center;gap:60px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:10px;font-family:'Courier Prime',monospace;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
 
-/* ── Navigation ── */
-nav {
-  position: fixed;
-  top: 0; width: 100%;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 6%;
-  background: var(--nav-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-ui);
-  z-index: 1000;
-  transition: background var(--transition-speed), border-color var(--transition-speed);
-}
+/* Sections */
+.section{padding:120px 8%;max-width:1400px;margin:0 auto}
+.section-label{font-family:'Courier Prime',monospace;color:var(--gold);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;display:flex;align-items:center;gap:15px}
+.section-label::before{content:"";width:40px;height:1px;background:var(--gold)}
+.section-intro{font-size:20px;color:var(--text-muted);max-width:700px;margin-bottom:60px;transition:color var(--transition-speed)}
 
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
+/* Flags grid */
+.flags-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px}
+.flag-card{background:var(--bg-card);border:1px solid var(--border-ui);padding:40px;border-radius:8px;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden}
+.flag-card:hover{background:var(--bg-card-hov);border-color:var(--border);transform:translateY(-5px);box-shadow:var(--shadow-card)}
+.flag-severity{font-family:'Courier Prime',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:24px;padding-left:12px;position:relative}
+.flag-severity::after{content:"";position:absolute;left:0;top:0;width:3px;height:100%;border-radius:2px}
+.high .flag-severity{color:var(--red-flag)}.high .flag-severity::after{background:var(--red-flag)}
+.medium .flag-severity{color:var(--amber-flag)}.medium .flag-severity::after{background:var(--amber-flag)}
+.low .flag-severity{color:var(--blue-flag)}.low .flag-severity::after{background:var(--blue-flag)}
+.flag-title{font-size:22px;font-weight:700;color:var(--text-head);margin-bottom:16px;transition:color var(--transition-speed)}
+.flag-desc{font-size:16px;color:var(--text-muted);line-height:1.6;transition:color var(--transition-speed)}
 
-.nav-logo-mark {
-  font-size: 24px;
-}
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:40px}
+.step{position:relative}
+.step-num{font-family:'Courier Prime',monospace;font-size:13px;color:var(--gold);margin-bottom:20px;font-weight:700}
+.step-title{font-size:24px;font-weight:700;color:var(--text-head);margin-bottom:16px;transition:color var(--transition-speed)}
+.step-desc{color:var(--text-muted);transition:color var(--transition-speed)}
 
-.nav-logo-text {
-  font-size: 22px;
-  font-weight: 900;
-}
+/* Email Section */
+.email-section{background:var(--bg-surface);padding:100px 6%;text-align:center;border-top:1px solid var(--border-ui);transition:background var(--transition-speed),border-color var(--transition-speed)}
+.email-section-inner{max-width:600px;margin:0 auto}
 
-.nav-logo-text span { font-weight: 400; opacity: 0.7; }
-
-.nav-right { display: flex; align-items: center; gap: 24px; }
-
-.theme-toggle {
-  background: none; border: 1px solid var(--border-ui);
-  padding: 6px 14px; border-radius: 20px;
-  color: var(--text-muted); cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  font-family: 'Courier Prime', monospace; font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: all 0.2s;
-}
-
-.theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
-
-.nav-cta {
-  background: var(--gold); color: #fff;
-  padding: 10px 22px; border-radius: 4px;
-  font-family: 'Courier Prime', monospace;
-  font-size: 13px; font-weight: 700;
-  text-decoration: none; text-transform: uppercase;
-  letter-spacing: 1px; transition: 0.2s;
-}
-
-.nav-cta:hover { background: var(--gold-bright); transform: translateY(-1px); }
-
-/* ── Hero ── */
-.hero {
-  padding: 220px 6% 120px;
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-  position: relative;
-}
-
-.hero::after {
-  content: ""; position: absolute;
-  top: 15%; width: 50vw; height: 50vw;
-  background: radial-gradient(circle, var(--hero-glow) 0%, transparent 70%);
-  z-index: -1;
-  transition: background var(--transition-speed);
-}
-
-.hero-inner { max-width: 880px; }
-
-.hero-eyebrow {
-  font-family: 'Courier Prime', monospace;
-  color: var(--gold); font-size: 13px;
-  font-weight: 700; text-transform: uppercase;
-  letter-spacing: 2px; margin-bottom: 24px;
-}
-
-.hero h1 { font-size: clamp(48px, 8vw, 84px); line-height: 1.05; margin-bottom: 32px; }
-
-.hero-sub {
-  font-size: clamp(18px, 2.2vw, 22px);
-  color: var(--text-muted); max-width: 640px;
-  margin: 0 auto 48px; font-weight: 300;
-  transition: color var(--transition-speed);
-}
-
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 12px;
-  background: var(--gold); color: #fff;
-  padding: 20px 40px; border-radius: 4px;
-  font-family: 'Courier Prime', monospace;
-  font-size: 16px; font-weight: 700;
-  text-decoration: none; text-transform: uppercase;
-  letter-spacing: 1px; transition: 0.3s;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-.btn-primary:hover {
-  background: var(--gold-bright);
-  transform: translateY(-3px);
-  box-shadow: 0 15px 40px var(--gold-glow);
-}
-
-.hero-note {
-  display: block; margin-top: 20px;
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px; color: var(--text-faint);
-  text-transform: uppercase; letter-spacing: 1px;
-}
-
-.download-instructions {
-  color: var(--gold); font-size: 13px; text-decoration: none;
-  border-bottom: 1px solid transparent; transition: 0.2s;
-  margin-top: 8px; display: inline-block;
-}
-
-.download-instructions:hover { border-bottom-color: var(--gold); }
-
-/* ── Trust Bar ── */
-.trust-bar {
-  border-top: 1px solid var(--border-ui);
-  border-bottom: 1px solid var(--border-ui);
-  background: var(--bg-surface);
-  padding: 30px 6%;
-  transition: background var(--transition-speed), border-color var(--transition-speed);
-}
-
-.trust-bar-inner {
-  display: flex; justify-content: center;
-  gap: 60px; flex-wrap: wrap;
-}
-
-.trust-item {
-  display: flex; align-items: center; gap: 10px;
-  font-family: 'Courier Prime', monospace;
-  font-size: 12px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 1px;
-}
-
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-
-/* ── Sections ── */
-.section { padding: 120px 8%; max-width: 1400px; margin: 0 auto; }
-
-.section-label {
-  font-family: 'Courier Prime', monospace;
-  color: var(--gold); font-size: 12px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 3px;
-  margin-bottom: 16px; display: flex; align-items: center; gap: 15px;
-}
-
-.section-label::before { content: ""; width: 40px; height: 1px; background: var(--gold); }
-
-.section-intro { font-size: 20px; color: var(--text-muted); max-width: 700px; margin-bottom: 60px; transition: color var(--transition-speed); }
-
-/* ── Grid ── */
-.flags-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 30px;
-}
-
-.flag-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-ui);
-  padding: 40px; border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  position: relative; overflow: hidden;
-}
-
-.flag-card:hover {
-  background: var(--bg-card-hov);
-  border-color: var(--border);
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-card);
-}
-
-.flag-severity {
-  font-family: 'Courier Prime', monospace;
-  font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 24px; padding-left: 12px;
-  position: relative;
-}
-
-.flag-severity::after {
-  content: ""; position: absolute; left: 0; top: 0;
-  width: 3px; height: 100%; border-radius: 2px;
-}
-
-.high .flag-severity { color: var(--red-flag); }
-.high .flag-severity::after { background: var(--red-flag); }
-.medium .flag-severity { color: var(--amber-flag); }
-.medium .flag-severity::after { background: var(--amber-flag); }
-.low .flag-severity { color: var(--blue-flag); }
-.low .flag-severity::after { background: var(--blue-flag); }
-
-.flag-title { font-size: 22px; font-weight: 700; color: var(--text-head); margin-bottom: 16px; transition: color var(--transition-speed); }
-
-.flag-desc { font-size: 16px; color: var(--text-muted); line-height: 1.6; transition: color var(--transition-speed); }
-
-/* ── Steps ── */
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; }
-
-.step { position: relative; }
-
-.step-num {
-  font-family: 'Courier Prime', monospace;
-  font-size: 13px; color: var(--gold);
-  margin-bottom: 20px; font-weight: 700;
-}
-
-.step-title { font-size: 24px; font-weight: 700; color: var(--text-head); margin-bottom: 16px; transition: color var(--transition-speed); }
-
-.step-desc { color: var(--text-muted); transition: color var(--transition-speed); }
-
-/* ── Email Section ── */
-.email-section { background: var(--bg-surface); padding: 100px 6%; text-align: center; border-top: 1px solid var(--border-ui); transition: background var(--transition-speed), border-color var(--transition-speed); }
-
-.email-section-inner { max-width: 600px; margin: 0 auto; }
-
-/* HIDE MailerLite default inject (keeps markup present but invisible) */
-.ml-embedded { display: none !important; }
+/* NOTE: show the MailerLite embed by default so static sites without a backend can use it */
+.ml-embedded{display:block;margin-top:18px}
 
 /* Improved email form styling to match site */
-.email-form {
-  display: flex;
-  gap: 12px;
-  margin-top: 40px;
-  background: var(--bg-raised);
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border-ui);
-  align-items: center;
-  justify-content: center;
+.email-form{
+  display:flex;gap:12px;margin-top:40px;background:var(--bg-raised);padding:8px;border-radius:6px;border:1px solid var(--border-ui);
+  align-items:center;justify-content:center
 }
+.email-input{flex:1;background:none;border:none;padding:12px 20px;color:var(--text-head);font-size:16px;font-family:inherit;outline:none}
 
-.email-input {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 12px 20px;
-  color: var(--text-head);
-  font-size: 16px;
-  font-family: inherit;
-  outline: none;
-}
-
-/* nicer fallback for small screens */
-@media (max-width: 480px) {
-  .email-form { flex-direction: column; gap: 8px; padding: 0; background: none; border: none; }
-  .email-input { width: 100%; background: var(--bg-raised); border: 1px solid var(--border-ui); border-radius: 6px; padding: 12px; }
+/* small screens */
+@media (max-width:480px){
+  .email-form{flex-direction:column;gap:8px;padding:0;background:none;border:none}
+  .email-input{width:100%;background:var(--bg-raised);border:1px solid var(--border-ui);border-radius:6px;padding:12px}
 }
 
 /* styled submit button */
-.btn-submit {
-  background: var(--gold);
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-family: 'Courier Prime', monospace;
-  font-weight: 700;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+.btn-submit{background:var(--gold);color:#fff;border:none;padding:12px 20px;border-radius:6px;font-family:'Courier Prime',monospace;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:1px}
+.btn-submit:hover{background:var(--gold-bright);transform:translateY(-1px)}
 
-.btn-submit:hover { background: var(--gold-bright); transform: translateY(-1px); }
+.success-msg{display:none;align-items:center;justify-content:center;gap:12px;margin-top:30px;color:#7ecfa0;font-family:'Courier Prime',monospace}
+.subscribe-error{display:none;margin-top:14px;color:var(--red-flag);font-family:inherit}
 
-.success-msg {
-  display: none; align-items: center; justify-content: center; gap: 12px;
-  margin-top: 30px; color: #7ecfa0; font-family: 'Courier Prime', monospace;
-}
+/* Pricing & Footer (unchanged) */
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;max-width:900px;margin:0 auto}
+.price-card{background:var(--bg-card);border:1px solid var(--border-ui);padding:50px 40px;border-radius:12px;text-align:center;position:relative;transition:all 0.4s ease}
+.price-card.featured{border-color:var(--gold);background:var(--bg-surface);box-shadow:0 20px 50px rgba(0,0,0,0.2),0 0 20px var(--gold-glow);transform:scale(1.05)}
+.badge{position:absolute;top:20px;right:20px;background:var(--gold);color:#fff;font-family:'Courier Prime',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px}
+.price-amount{font-size:64px;font-weight:900;color:var(--text-head);margin-bottom:10px;display:flex;align-items:baseline;justify-content:center;gap:4px}
+.price-amount span{font-size:18px;color:var(--text-muted);font-weight:400}
+.price-features{list-style:none;text-align:left;margin:30px 0 40px;display:flex;flex-direction:column;gap:15px}
+.price-features li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--text-body)}
+.price-features li svg{color:var(--gold);flex-shrink:0}.price-features li.disabled{opacity:0.4;text-decoration:line-through}
+.btn-price{width:100%;display:inline-block;padding:16px;border:1px solid var(--border-ui);border-radius:4px;font-family:'Courier Prime',monospace;font-weight:700;text-decoration:none;text-transform:uppercase;transition:0.2s}
+.featured .btn-price{background:var(--gold);color:#fff;border-color:var(--gold)}.btn-price:hover{background:var(--gold-bright);color:#fff}
+.email-fine-print{font-size:12px;color:var(--text-muted);margin-top:30px;line-height:1.5;transition:color var(--transition-speed)}
 
-/* ── Pricing Grid & Cards ── */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
-  max-width: 900px;
-  margin: 0 auto;
-}
+footer{padding:60px 6%;border-top:1px solid var(--border-ui);display:flex;justify-content:space-between;align-items:center;color:var(--text-muted);font-family:'Courier Prime',monospace;font-size:12px;transition:border-color var(--transition-speed),color var(--transition-speed)}
 
-.price-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-ui);
-  padding: 50px 40px;
-  border-radius: 12px;
-  text-align: center;
-  position: relative;
-  transition: all 0.4s ease;
-}
-
-.price-card.featured {
-  border-color: var(--gold);
-  background: var(--bg-surface);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 20px var(--gold-glow);
-  transform: scale(1.05);
-}
-
-.badge {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--gold);
-  color: #fff;
-  font-family: 'Courier Prime', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.price-amount {
-  font-size: 64px;
-  font-weight: 900;
-  color: var(--text-head);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 4px;
-}
-
-.price-amount span {
-  font-size: 18px;
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-.price-features {
-  list-style: none;
-  text-align: left;
-  margin: 30px 0 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.price-features li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 15px;
-  color: var(--text-body);
-}
-
-.price-features li svg { color: var(--gold); flex-shrink: 0; }
-.price-features li.disabled { opacity: 0.4; text-decoration: line-through; }
-
-.btn-price {
-  width: 100%;
-  display: inline-block;
-  padding: 16px;
-  border: 1px solid var(--border-ui);
-  border-radius: 4px;
-  font-family: 'Courier Prime', monospace;
-  font-weight: 700;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: 0.2s;
-}
-
-.featured .btn-price { background: var(--gold); color: #fff; border-color: var(--gold); }
-.btn-price:hover { background: var(--gold-bright); color: #fff; }
-
-.email-fine-print { font-size: 12px; color: var(--text-muted); margin-top: 30px; line-height: 1.5; transition: color var(--transition-speed); }
-
-/* ── Footer ── */
-footer {
-  padding: 60px 6%; border-top: 1px solid var(--border-ui);
-  display: flex; justify-content: space-between; align-items: center;
-  color: var(--text-muted); font-family: 'Courier Prime', monospace; font-size: 12px;
-  transition: border-color var(--transition-speed), color var(--transition-speed);
-}
-
-/* ── Animations ── */
-.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 768px) {
-  .hero { padding-top: 160px; }
-  .trust-bar-inner { gap: 20px; justify-content: flex-start; }
-  .email-form { flex-direction: column; background: none; border: none; padding: 0; }
-  .email-input { background: var(--bg-raised); border: 1px solid var(--border-ui); border-radius: 4px; margin-bottom: 10px; }
-}
+/* reveal animations */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease,transform 0.8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
   </style>
 </head>
 <body data-theme="dark">
@@ -510,12 +175,11 @@ footer {
     <div class="hero-inner">
       <div class="hero-eyebrow">Free Chrome Extension · Open Beta</div>
       <h1 class="reveal">You agreed to <em>what,</em><br>exactly?</h1>
-      <p class="hero-sub reveal">
-        TOS Guardian reads Terms &amp; Conditions for you and flags the clauses that should make you pause — before you click Accept.
-      </p>
+      <p class="hero-sub reveal">TOS Guardian reads Terms &amp; Conditions for you and flags the clauses that should make you pause — before you click Accept.</p>
+
       <div class="hero-actions reveal">
         <a href="tos-guardian.zip" download class="btn-primary" id="download">
-          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Download Beta — Free
@@ -575,7 +239,7 @@ footer {
     </div>
   </div>
 
-  <hr style="border:0; height:1px; background:var(--border-ui); margin: 0 6%;">
+  <hr style="border:0;height:1px;background:var(--border-ui);margin:0 6%;" />
 
   <!-- HOW IT WORKS -->
   <div class="section" id="instructions">
@@ -602,14 +266,11 @@ footer {
   </div>
 
   <!-- MailerLite Universal -->
-<script>
-    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
-    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
-    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+  <script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);},l=d.createElement(e),l.async=1,l.src=u,n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
     (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
     ml('account', '2150699');
-</script>
-<!-- End MailerLite Universal -->
+  </script>
 
   <!-- EMAIL SECTION -->
   <div class="email-section">
@@ -617,12 +278,17 @@ footer {
       <p class="section-label reveal">Stay informed</p>
       <h2 class="reveal">Get notified when we<br><em>launch on the Chrome Store</em></h2>
 
+      <!-- keep the MailerLite embed visible as a fallback for static sites -->
       <div class="ml-embedded" data-form="ZtjZJC"></div>
-      
+
+      <!-- custom form (attempts server-side subscribe first) -->
       <div class="email-form reveal" id="customEmailForm">
-        <input type="email" class="email-input" id="emailInput" placeholder="your@email.com" aria-label="Email address">
+        <input type="email" class="email-input" id="emailInput" placeholder="your@email.com" aria-label="Email address" />
         <button class="btn-submit" id="submitBtn" type="button">Notify Me</button>
       </div>
+
+      <!-- error area shown when server subscribe fails; also reveals the MailerLite embed -->
+      <div class="subscribe-error" id="subscribeError" role="alert" aria-live="polite"></div>
 
       <div class="success-msg" id="successMsg" role="status" aria-live="polite">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -637,81 +303,63 @@ footer {
   </div>
 
   <!-- PRICING SECTION -->
+  <div class="section" id="pricing">
+    <p class="section-label reveal">Pricing</p>
+    <h2 class="reveal">Simple, transparent<br /><em>protection</em></h2>
+    <p class="section-intro reveal">Choose the plan that fits your browsing habits.</p>
 
-<div class="section" id="pricing">
-<p class="section-label reveal">Pricing</p>
-<h2 class="reveal">Simple, transparent
+    <div class="pricing-grid">
+      <!-- Free Tier -->
+      <div class="price-card reveal">
+        <div style="font-family:'Courier Prime',monospace;color:var(--gold);margin-bottom:20px;font-weight:700;text-transform:uppercase">Starter</div>
+        <div class="price-amount">$0<span>/mo</span></div>
+        <p style="color:var(--text-muted);font-size:15px">Basic analysis for occasional use.</p>
+        <ul class="price-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 analyses per day</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> High-severity flags</li>
+          <li class="disabled"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Unlimited scans</li>
+        </ul>
+        <a href="#" class="btn-price">Current Plan</a>
+      </div>
 
-
-
-<em>protection</em></h2>
-<p class="section-intro reveal">Choose the plan that fits your browsing habits.</p>
-
-<div class="pricing-grid">
-<!-- Free Tier -->
-<div class="price-card reveal">
-<div style="font-family: 'Courier Prime', monospace; color: var(--gold); margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">Starter</div>
-<div class="price-amount">$0<span>/mo</span></div>
-<p style="color: var(--text-muted); font-size: 15px;">Basic analysis for occasional use.</p>
-<ul class="price-features">
-<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 analyses per day</li>
-<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> High-severity flags</li>
-<li class="disabled"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Unlimited scans</li>
-</ul>
-<a href="#" class="btn-price">Current Plan</a>
-</div>
-
-<!-- Paid Tier -->
-<div class="price-card featured reveal">
-  <div class="badge">Best Value</div>
-  <div style="font-family: 'Courier Prime', monospace; color: var(--gold); margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">Guardian Pro</div>
-  <div class="price-amount">$2<span>/mo</span></div>
-  <p style="color: var(--text-muted); font-size: 15px;">Complete protection for active users.</p>
-  <ul class="price-features">
-    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited analyses</li>
-    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> All severity levels</li>
-    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority Support</li>
-  </ul>
-  <a href="#" class="btn-price">Upgrade Now</a>
-</div>
-
-
-</div>
-</div>
+      <!-- Paid Tier -->
+      <div class="price-card featured reveal">
+        <div class="badge">Best Value</div>
+        <div style="font-family:'Courier Prime',monospace;color:var(--gold);margin-bottom:20px;font-weight:700;text-transform:uppercase">Guardian Pro</div>
+        <div class="price-amount">$2<span>/mo</span></div>
+        <p style="color:var(--text-muted);font-size:15px">Complete protection for active users.</p>
+        <ul class="price-features">
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited analyses</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> All severity levels</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority Support</li>
+        </ul>
+        <a href="#" class="btn-price">Upgrade Now</a>
+      </div>
+    </div>
+  </div>
 
   <!-- FOOTER -->
   <footer>
-    <div class="footer-left">
-      TOS Guardian — The Guardian of your digital rights.
-    </div>
-    <div class="footer-right">
-      Beta v1.0 · Free for testers
-    </div>
+    <div class="footer-left">TOS Guardian — The Guardian of your digital rights.</div>
+    <div class="footer-right">Beta v1.0 · Free for testers</div>
   </footer>
 
   <script>
-    /* ── Theme Toggle Logic ── */
+    /* THEME TOGGLE */
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon   = document.getElementById('themeIcon');
-    const themeLabel  = document.getElementById('themeLabel');
-    const htmlEl      = document.documentElement;
-
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+    const htmlEl = document.documentElement;
     themeToggle.addEventListener('click', () => {
       const current = htmlEl.getAttribute('data-theme');
-      const target  = current === 'dark' ? 'light' : 'dark';
-      
-      // Update data-theme on HTML element
+      const target = current === 'dark' ? 'light' : 'dark';
       htmlEl.setAttribute('data-theme', target);
-      
-      // Also update data-theme on body for good measure
       document.body.setAttribute('data-theme', target);
-      
-      // Update UI feedback
       themeIcon.textContent = target === 'dark' ? '☀️' : '🌙';
       themeLabel.textContent = target === 'dark' ? 'Light' : 'Dark';
     });
 
-    /* ── Scroll Reveal ── */
+    /* SCROLL REVEAL */
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(el => {
         if (el.isIntersecting) {
@@ -720,18 +368,21 @@ footer {
         }
       });
     }, { threshold: 0.07 });
-
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    /* ── Email Signup (uses hidden MailerLite embed + custom form that posts to /api/subscribe) ── */
+    /* EMAIL SIGNUP: tries server-side subscribe (/api/subscribe).
+       If that fails (no backend on static site), we reveal the MailerLite embed
+       so the visitor can subscribe via MailerLite's own widget. */
     const emailInput = document.getElementById('emailInput');
-    const submitBtn  = document.getElementById('submitBtn');
+    const submitBtn = document.getElementById('submitBtn');
     const successMsg = document.getElementById('successMsg');
     const customForm = document.getElementById('customEmailForm');
+    const subscribeError = document.getElementById('subscribeError');
+    const mlEmbed = document.querySelector('.ml-embedded');
 
     async function subscribeEmail(email) {
-      // This endpoint is expected to be implemented server-side to forward to MailerLite.
-      // It must keep API keys server-side. If you don't have a backend yet, adapt accordingly.
+      // NOTE: This endpoint must exist server-side. On static hosts this will 404/ERR.
+      // Keep API keys server-side only.
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -739,7 +390,7 @@ footer {
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
-        throw new Error('Subscribe failed: ' + (text || res.status));
+        throw new Error(text || ('status:' + res.status));
       }
       return res.json().catch(() => ({}));
     }
@@ -754,24 +405,35 @@ footer {
           return;
         }
 
-        // optimistic UI lock
         submitBtn.disabled = true;
         submitBtn.textContent = 'Subscribing…';
-
+        subscribeError.style.display = 'none';
         try {
-          // attempt server-side subscription (recommended)
+          // Try the recommended secure server-side flow first
           await subscribeEmail(email);
 
-          // success UI
+          // Success UI
           customForm.style.display = 'none';
+          if (mlEmbed) mlEmbed.style.display = 'none'; // hide fallback if it was shown
           successMsg.style.display = 'flex';
         } catch (err) {
           console.error('Subscription error:', err);
+
+          // Server subscribe failed (likely because /api/subscribe doesn't exist on static host).
+          // Reveal friendly error and show MailerLite embed as a fallback so visitors can still subscribe.
+          subscribeError.textContent = "Subscription couldn't be completed via the site. You can still sign up using the MailerLite form below.";
+          subscribeError.style.display = 'block';
+
+          // Reveal the MailerLite embed so the user can subscribe via MailerLite's widget.
+          if (mlEmbed) {
+            mlEmbed.style.display = 'block';
+            // Bring it into view for the visitor on error
+            mlEmbed.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+
+          // reset UI so user can choose to use ML widget or try again later
           submitBtn.disabled = false;
           submitBtn.textContent = 'Notify Me';
-          // fallback: if server isn't available, still show success locally (optional),
-          // but here we surface an alert so developer knows to implement /api/subscribe.
-          alert('Sorry — subscription failed. Please try again later.');
         }
       });
     }
@@ -786,12 +448,7 @@ footer {
     }
 
     const downloadBtn = document.getElementById('download');
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', () => {
-        console.log('Beta download triggered');
-      });
-    }
+    if (downloadBtn) downloadBtn.addEventListener('click', () => console.log('Beta download triggered'));
   </script>
-
 </body>
 </html>
