@@ -65,6 +65,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
+/* Add this to fix the header overlap */
+[id] {
+  scroll-margin-top: 100px;
+}
+    
 body {
   background: var(--bg);
   color: var(--text-body);
