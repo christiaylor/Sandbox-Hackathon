@@ -11,6 +11,16 @@
     'conditions of use', 'acceptable use policy'
   ];
 
+  const ACCOUNT_KEYWORDS = [
+    'sign up', 'signup', 'register', 'create account', 'join', 'get started',
+    'start free trial', 'free trial', 'new account', 'open account'
+  ];
+
+  const LEGAL_LINK_KEYWORDS = [
+    'terms', 'terms of service', 'terms of use', 'terms and conditions',
+    'privacy', 'privacy policy', 'user agreement', 'eula', 'legal'
+  ];
+
   function isTOSPage() {
     const title = document.title.toLowerCase();
     const h1s = Array.from(document.querySelectorAll('h1, h2')).map(el => el.textContent.toLowerCase());
@@ -18,6 +28,58 @@
     
     const allText = [title, ...h1s, url].join(' ');
     return TOS_KEYWORDS.some(kw => allText.includes(kw));
+  }
+
+  function isAccountCreationPage() {
+    const title = document.title.toLowerCase();
+    const url = window.location.href.toLowerCase();
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3')).map(el => el.textContent.toLowerCase()).join(' ');
+    const buttonText = Array.from(document.querySelectorAll('button, [role="button"], input[type="submit"]'))
+      .map(el => (el.value || el.textContent || '').toLowerCase())
+      .join(' ');
+
+    const hasSignupLanguage = ACCOUNT_KEYWORDS.some(kw =>
+      title.includes(kw) || url.includes(kw.replace(/\s+/g, '')) || headings.includes(kw) || buttonText.includes(kw)
+    );
+
+    const hasPassword = !!document.querySelector('input[type="password"]');
+    const hasEmailOrUsername = !!document.querySelector('input[type="email"], input[name*="email" i], input[name*="user" i], input[id*="email" i], input[id*="user" i]');
+    const hasTermsConsent = !!document.querySelector('label, .checkbox, .consent, .tos, .terms')
+      && /terms|privacy|agree|consent|policy/i.test(document.body.innerText.slice(0, 5000));
+
+    return (hasSignupLanguage && (hasPassword || hasEmailOrUsername)) || hasTermsConsent;
+  }
+
+  function findLegalLinks() {
+    const links = Array.from(document.querySelectorAll('a[href]'));
+    const seen = new Set();
+    const matches = [];
+
+    for (const link of links) {
+      const text = (link.textContent || '').trim().toLowerCase();
+      const href = link.href ? link.href.trim() : '';
+      if (!href) continue;
+
+      const haystack = `${text} ${href.toLowerCase()}`;
+      if (!LEGAL_LINK_KEYWORDS.some(kw => haystack.includes(kw))) continue;
+      if (href.startsWith('javascript:') || href.startsWith('mailto:')) continue;
+      if (seen.has(href)) continue;
+
+      seen.add(href);
+      matches.push({
+        text: (link.textContent || link.getAttribute('aria-label') || 'Legal link').trim().slice(0, 80),
+        href
+      });
+    }
+
+    return matches.slice(0, 8);
+  }
+
+  function detectPageContext() {
+    const tosPage = isTOSPage();
+    const accountPage = isAccountCreationPage();
+    const legalLinks = findLegalLinks();
+    return { tosPage, accountPage, legalLinks };
   }
 
   function extractPageText() {
@@ -31,8 +93,17 @@
     return text.replace(/\s+/g, ' ').trim().substring(0, 8000);
   }
 
-  function injectPanel() {
+  function injectPanel(context = detectPageContext()) {
     if (document.getElementById('tos-guardian-panel')) return;
+
+    const isDetected = context.tosPage || context.accountPage;
+    const badgeText = context.tosPage
+      ? '⚠️ Terms/Policy Page Detected'
+      : '🧾 Account Creation Page Detected';
+    const hintText = context.tosPage
+      ? 'Summarize this policy in plain English.'
+      : 'Found account flow signals. Review legal links before creating your account.';
+    const analyzeLabel = context.tosPage ? 'Summarize' : 'Summarize This Page';
 
     const panel = document.createElement('div');
     panel.id = 'tos-guardian-panel';
@@ -49,8 +120,9 @@
       </div>
       <div id="tg-body">
         <div id="tg-status">
-          <div class="tg-detected-badge">⚠️ Terms & Conditions Detected</div>
-          <p class="tg-hint">Click Analyze to scan for red flags using AI.</p>
+          ${isDetected ? `<div class="tg-detected-badge">${badgeText}</div>` : ''}
+          <p class="tg-hint">${hintText}</p>
+          <div id="tg-link-results"></div>
         </div>
         <div id="tg-results" style="display:none"></div>
       </div>
@@ -59,23 +131,49 @@
     const style = document.createElement('style');
     style.textContent = `
       #tos-guardian-panel {
+        --tg-gold: #d4af37;
+        --tg-bold: #ffffff;
+        --tg-bg: #0b111a;
+        --tg-body: #c8d0db;
+        --tg-surface: #101823;
+        --tg-border: #263446;
+        --tg-muted: #9ca7b8;
+        --tg-accent-soft: rgba(212, 175, 55, 0.14);
+        --tg-accent-soft-2: rgba(212, 175, 55, 0.24);
+        --tg-danger: #d36a6a;
+        --tg-ok: #63b56e;
         position: fixed;
         bottom: 24px;
         right: 24px;
         width: 380px;
         max-height: 520px;
-        background: #0d0d0f;
-        border: 1px solid #2a2a35;
+        background: var(--tg-bg);
+        border: 1px solid var(--tg-border);
         border-radius: 16px;
         font-family: 'Georgia', serif;
         font-size: 13px;
-        color: #e8e6df;
-        box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,100,60,0.15);
+        color: var(--tg-body);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px var(--tg-accent-soft);
         z-index: 2147483647;
         overflow: hidden;
         display: flex;
         flex-direction: column;
         animation: tg-slide-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @media (prefers-color-scheme: light) {
+        #tos-guardian-panel {
+          --tg-gold: #a87e10;
+          --tg-bold: #0f1e34;
+          --tg-bg: #f2efe8;
+          --tg-body: #5a6a7e;
+          --tg-surface: #fbf9f4;
+          --tg-border: #d4ccbd;
+          --tg-muted: #6d7c91;
+          --tg-accent-soft: rgba(168, 126, 16, 0.12);
+          --tg-accent-soft-2: rgba(168, 126, 16, 0.2);
+          --tg-danger: #bf5a5a;
+          --tg-ok: #4f9a57;
+        }
       }
       @keyframes tg-slide-in {
         from { opacity: 0; transform: translateY(20px) scale(0.95); }
@@ -86,8 +184,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 14px 16px;
-        background: linear-gradient(135deg, #1a0a08 0%, #160814 100%);
-        border-bottom: 1px solid #2a2a35;
+        background: var(--tg-surface);
+        border-bottom: 1px solid var(--tg-border);
       }
       #tg-logo {
         display: flex;
@@ -101,7 +199,7 @@
         font-size: 15px;
         font-weight: bold;
         letter-spacing: 0.5px;
-        color: #ff6e3c;
+        color: var(--tg-gold);
       }
       #tg-controls {
         display: flex;
@@ -109,8 +207,8 @@
         gap: 8px;
       }
       #tg-analyze-btn {
-        background: linear-gradient(135deg, #ff4a1c, #ff6e3c);
-        color: white;
+        background: var(--tg-gold);
+        color: var(--tg-bg);
         border: none;
         border-radius: 8px;
         padding: 6px 14px;
@@ -124,16 +222,16 @@
       #tg-analyze-btn:hover { opacity: 0.85; }
       #tg-analyze-btn:disabled { opacity: 0.4; cursor: default; }
       #tg-close-btn {
-        background: none;
-        border: 1px solid #333;
-        color: #888;
+        background: transparent;
+        border: 1px solid var(--tg-border);
+        color: var(--tg-muted);
         border-radius: 6px;
         padding: 4px 8px;
         cursor: pointer;
         font-size: 12px;
         transition: all 0.2s;
       }
-      #tg-close-btn:hover { color: #fff; border-color: #666; }
+      #tg-close-btn:hover { color: var(--tg-bold); border-color: var(--tg-gold); }
       #tg-body {
         padding: 14px 16px;
         overflow-y: auto;
@@ -142,58 +240,92 @@
       }
       .tg-detected-badge {
         display: inline-block;
-        background: rgba(255, 74, 28, 0.12);
-        border: 1px solid rgba(255, 74, 28, 0.35);
-        color: #ff8060;
+        background: var(--tg-accent-soft);
+        border: 1px solid var(--tg-accent-soft-2);
+        color: var(--tg-gold);
         border-radius: 8px;
         padding: 5px 10px;
         font-size: 12px;
         margin-bottom: 8px;
       }
       .tg-hint {
-        color: #888;
+        color: var(--tg-body);
         font-size: 12px;
         margin: 0;
         font-style: italic;
+      }
+      #tg-link-results {
+        margin-top: 10px;
+      }
+      .tg-link-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--tg-gold);
+        margin-bottom: 6px;
+      }
+      .tg-link-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--tg-border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+      }
+      .tg-link-name {
+        color: var(--tg-body);
+        font-size: 11px;
+        line-height: 1.3;
+      }
+      .tg-link-open {
+        color: var(--tg-gold);
+        font-size: 11px;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .tg-link-open:hover {
+        text-decoration: underline;
       }
       .tg-loading {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #aaa;
+        color: var(--tg-body);
         font-size: 12px;
         padding: 8px 0;
       }
       .tg-spinner {
         width: 16px;
         height: 16px;
-        border: 2px solid #333;
-        border-top-color: #ff6e3c;
+        border: 2px solid var(--tg-border);
+        border-top-color: var(--tg-gold);
         border-radius: 50%;
         animation: tg-spin 0.8s linear infinite;
       }
       @keyframes tg-spin { to { transform: rotate(360deg); } }
       .tg-summary {
-        background: rgba(255,255,255,0.03);
-        border-left: 3px solid #ff4a1c;
+        background: var(--tg-accent-soft);
+        border-left: 3px solid var(--tg-gold);
         padding: 10px 12px;
         border-radius: 0 8px 8px 0;
         margin-bottom: 14px;
         font-size: 12px;
         line-height: 1.6;
-        color: #ccc;
+        color: var(--tg-body);
       }
       .tg-section-title {
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: #ff6e3c;
+        color: var(--tg-gold);
         margin: 12px 0 8px;
         font-weight: bold;
       }
       .tg-flag {
-        background: rgba(255, 40, 20, 0.07);
-        border: 1px solid rgba(255, 60, 30, 0.2);
+        background: var(--tg-accent-soft);
+        border: 1px solid var(--tg-accent-soft-2);
         border-radius: 10px;
         padding: 10px 12px;
         margin-bottom: 8px;
@@ -211,17 +343,17 @@
         padding: 2px 7px;
         border-radius: 4px;
       }
-      .sev-high { background: rgba(220,30,30,0.25); color: #ff6060; border: 1px solid rgba(220,30,30,0.4); }
-      .sev-medium { background: rgba(220,140,30,0.2); color: #ffb060; border: 1px solid rgba(220,140,30,0.3); }
-      .sev-low { background: rgba(100,100,200,0.15); color: #9090ff; border: 1px solid rgba(100,100,200,0.25); }
+      .sev-high { background: rgba(191, 90, 90, 0.22); color: var(--tg-bold); border: 1px solid rgba(191, 90, 90, 0.45); }
+      .sev-medium { background: var(--tg-accent-soft-2); color: var(--tg-gold); border: 1px solid var(--tg-gold); }
+      .sev-low { background: rgba(90, 106, 126, 0.2); color: var(--tg-body); border: 1px solid rgba(90, 106, 126, 0.45); }
       .tg-flag-title {
         font-size: 12px;
         font-weight: bold;
-        color: #e0ddd5;
+        color: var(--tg-bold);
       }
       .tg-flag-desc {
         font-size: 11px;
-        color: #999;
+        color: var(--tg-body);
         line-height: 1.5;
         margin: 0;
       }
@@ -229,29 +361,29 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #60c060;
+        color: var(--tg-ok);
         font-size: 12px;
         padding: 10px;
       }
       .tg-footer {
         font-size: 10px;
-        color: #555;
+        color: var(--tg-body);
         text-align: center;
         padding-top: 10px;
-        border-top: 1px solid #1e1e26;
+        border-top: 1px solid var(--tg-border);
         margin-top: 6px;
       }
       .tg-no-key {
-        background: rgba(255,200,0,0.06);
-        border: 1px solid rgba(255,200,0,0.2);
+        background: var(--tg-accent-soft);
+        border: 1px solid var(--tg-accent-soft-2);
         border-radius: 8px;
         padding: 10px 12px;
         font-size: 11px;
-        color: #ccc;
+        color: var(--tg-body);
         line-height: 1.6;
       }
       .tg-no-key a {
-        color: #ff8060;
+        color: var(--tg-gold);
         text-decoration: none;
       }
     `;
@@ -259,8 +391,32 @@
     document.head.appendChild(style);
     document.body.appendChild(panel);
 
+    document.getElementById('tg-analyze-btn').textContent = analyzeLabel;
     document.getElementById('tg-close-btn').onclick = () => panel.remove();
     document.getElementById('tg-analyze-btn').onclick = () => startAnalysis();
+    renderLegalLinks(context.legalLinks);
+  }
+
+  function renderLegalLinks(links) {
+    const container = document.getElementById('tg-link-results');
+    if (!container) return;
+    if (!links.length) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const html = links.map((link) => `
+      <div class="tg-link-item">
+        <div class="tg-link-name">${escapeHtml(link.text || 'Legal link')}</div>
+        <a class="tg-link-open" href="${escapeHtml(link.href)}" target="_blank" rel="noopener noreferrer">Open</a>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <div class="tg-link-title">Likely Terms / Privacy Links</div>
+      ${html}
+      <p class="tg-hint" style="margin-top:4px">Open a legal link, then use Summarize on that page.</p>
+    `;
   }
 
   async function startAnalysis() {
@@ -275,16 +431,18 @@
     results.innerHTML = `<div class="tg-loading"><div class="tg-spinner"></div> Reading the fine print…</div>`;
 
     const text = extractPageText();
+    const pageLastModified = document.lastModified || null;
+    const pageUrl = window.location.href;
 
     // Send to background for API call
-    chrome.runtime.sendMessage({ type: 'ANALYZE_TOS', text }, (response) => {
+    chrome.runtime.sendMessage({ type: 'ANALYZE_TOS', text, url: pageUrl, pageLastModified }, (response) => {
       btn.disabled = false;
       btn.textContent = 'Re-analyze';
 
       if (response && response.error === 'NO_API_KEY') {
         results.innerHTML = `
           <div class="tg-no-key">
-            <strong style="color:#ffb060">🔑 API Key Required</strong><br><br>
+            <strong style="color:var(--tg-gold)">🔑 API Key Required</strong><br><br>
             To analyze Terms & Conditions, TOS Guardian needs your Google AI Studio API key.<br><br>
             1. Click the extension icon in Chrome's toolbar<br>
             2. Enter your <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio API key</a><br>
@@ -296,23 +454,44 @@
       if (response && response.flags) {
         renderResults(response, results);
       } else {
-        results.innerHTML = `<div class="tg-hint" style="color:#e06060">Analysis failed. ${response?.error || 'Please try again.'}</div>`;
+        results.innerHTML = `<div class="tg-hint" style="color:var(--tg-danger)">Analysis failed. ${response?.error || 'Please try again.'}</div>`;
       }
     });
   }
 
   function renderResults(data, container) {
-    const highFlags = data.flags.filter(f => f.severity === 'HIGH');
-    const medFlags = data.flags.filter(f => f.severity === 'MEDIUM');
-    const lowFlags = data.flags.filter(f => f.severity === 'LOW');
+    const flags = Array.isArray(data.flags) ? data.flags : [];
+    const highFlags = flags.filter(f => f.severity === 'HIGH');
+    const medFlags = flags.filter(f => f.severity === 'MEDIUM');
+    const lowFlags = flags.filter(f => f.severity === 'LOW');
 
     let html = '';
 
-    if (data.summary) {
-      html += `<div class="tg-summary">${escapeHtml(data.summary)}</div>`;
+    if (data.cache_status) {
+      const cacheLabel = data.cache_status === 'HIT'
+        ? 'Loaded from policy history'
+        : data.cache_status === 'REFRESHED'
+          ? 'Policy changed, summary regenerated'
+          : 'New policy summary generated';
+      html += `<div class="tg-hint" style="margin-bottom:10px;color:var(--tg-gold)">${escapeHtml(cacheLabel)}</div>`;
     }
 
-    if (data.flags.length === 0) {
+    const summaryBits = [
+      data.overall_risk ? `Risk: ${data.overall_risk}` : '',
+      data.overall_risk_reason || '',
+      data.your_data || '',
+      data.billing_and_cancellation || '',
+      data.dispute_resolution || '',
+      data.account_termination || '',
+      data.your_content || '',
+      data.changes_to_terms || ''
+    ].filter(Boolean);
+
+    if (summaryBits.length) {
+      html += `<div class="tg-summary">${escapeHtml(summaryBits.join('\n\n')).replace(/\n/g, '<br>')}</div>`;
+    }
+
+    if (flags.length === 0) {
       html += `<div class="tg-ok">✅ No major red flags detected. Still read carefully!</div>`;
     } else {
       const groups = [
@@ -338,7 +517,7 @@
       }
     }
 
-    html += `<div class="tg-footer">Powered by Claude · Always read original document</div>`;
+    html += `<div class="tg-footer">Powered by Gemini · Always read original document</div>`;
     container.innerHTML = html;
   }
 
@@ -349,15 +528,16 @@
   }
 
   // Run detection
-  if (isTOSPage()) {
+  const pageContext = detectPageContext();
+  if (pageContext.tosPage || pageContext.accountPage) {
     // Small delay to let page fully render
-    setTimeout(injectPanel, 1200);
+    setTimeout(() => injectPanel(pageContext), 1200);
   }
 
   // Also listen for messages from popup to trigger manual analysis
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'TRIGGER_PANEL') {
-      injectPanel();
+      injectPanel(detectPageContext());
     }
   });
 
