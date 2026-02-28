@@ -20,6 +20,29 @@
     'terms', 'terms of service', 'terms of use', 'terms and conditions',
     'privacy', 'privacy policy', 'user agreement', 'eula', 'legal'
   ];
+  const SEARCH_ENGINE_HOST_PATTERNS = [
+    /(^|\.)google\./i,
+    /(^|\.)duckduckgo\.com$/i,
+    /(^|\.)bing\.com$/i,
+    /(^|\.)search\.yahoo\.com$/i,
+    /(^|\.)yandex\./i,
+    /(^|\.)baidu\.com$/i,
+    /(^|\.)ecosia\.org$/i,
+    /(^|\.)startpage\.com$/i,
+    /(^|\.)brave\.com$/i,
+    /(^|\.)qwant\.com$/i,
+  ];
+
+  function isSearchEnginePage() {
+    let host = '';
+    try {
+      host = window.location.hostname.toLowerCase();
+    } catch {
+      return false;
+    }
+
+    return SEARCH_ENGINE_HOST_PATTERNS.some((pattern) => pattern.test(host));
+  }
 
   function isTOSPage() {
     const title = document.title.toLowerCase();
@@ -567,7 +590,7 @@
 
   // Run detection
   const pageContext = detectPageContext();
-  const shouldAutoInject = pageContext.tosPage || pageContext.accountPage;
+  const shouldAutoInject = !isSearchEnginePage() && (pageContext.tosPage || pageContext.accountPage);
   if (shouldAutoInject) {
     // Small delay to let page fully render
     setTimeout(() => injectPanel(pageContext), 1200);
@@ -576,6 +599,7 @@
   // Also listen for messages from popup to trigger manual analysis
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'TRIGGER_PANEL') {
+      if (isSearchEnginePage()) return;
       injectPanel(detectPageContext());
     }
   });
