@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>TOS Guardian</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --tg-gold: #d4af37;
+      --tg-bold: #ffffff;
+      --tg-bg: #0b111a;
+      --tg-body: #c8d0db;
+      --tg-surface: #101823;
+      --tg-surface-2: #131d2a;
+      --tg-border: #263446;
+      --tg-muted: #9ca7b8;
+      --tg-accent-soft: rgba(212, 175, 55, 0.14);
+      --tg-accent-soft-2: rgba(212, 175, 55, 0.2);
+      --tg-ok: #63b56e;
+      --tg-danger: #d36a6a;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --tg-gold: #a87e10;
+        --tg-bold: #0f1e34;
+        --tg-bg: #f2efe8;
+        --tg-body: #5a6a7e;
+        --tg-surface: #fbf9f4;
+        --tg-surface-2: #f6f2ea;
+        --tg-border: #d4ccbd;
+        --tg-muted: #6d7c91;
+        --tg-accent-soft: rgba(168, 126, 16, 0.12);
+        --tg-accent-soft-2: rgba(168, 126, 16, 0.2);
+        --tg-ok: #4f9a57;
+        --tg-danger: #bf5a5a;
+      }
+    }
+
+    body {
+      width: 320px;
+      background: var(--tg-bg);
+      color: var(--tg-body);
+      font-family: 'Georgia', serif;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--tg-surface);
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--tg-border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .shield { font-size: 24px; }
+
+    .app-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--tg-gold);
+      letter-spacing: 0.5px;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--tg-body);
+      font-style: italic;
+      margin-left: 34px;
+    }
+
+    .body {
+      padding: 18px 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: var(--tg-surface);
+      border: 1px solid var(--tg-border);
+      border-radius: 8px;
+      color: var(--tg-muted);
+      padding: 8px;
+      font-size: 12px;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      border-color: var(--tg-gold);
+      color: var(--tg-gold);
+      background: var(--tg-accent-soft);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--tg-body);
+      margin-bottom: 6px;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      background: var(--tg-surface-2);
+      border: 1px solid var(--tg-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--tg-body);
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="password"]:focus {
+      border-color: var(--tg-gold);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: var(--tg-surface-2);
+      border: 1px solid var(--tg-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--tg-body);
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--tg-gold);
+    }
+
+    .save-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--tg-gold);
+      color: var(--tg-bg);
+      border: none;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .save-btn:hover { opacity: 0.85; }
+
+    .status {
+      margin-top: 8px;
+      font-size: 11px;
+      text-align: center;
+      height: 16px;
+      color: var(--tg-ok);
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--tg-border);
+      margin: 16px 0;
+    }
+
+    .history-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .refresh-btn {
+      background: var(--tg-surface);
+      border: 1px solid var(--tg-border);
+      color: var(--tg-body);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .history-list {
+      max-height: 260px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-empty {
+      font-size: 11px;
+      color: var(--tg-muted);
+      text-align: center;
+      padding: 16px 6px;
+      border: 1px dashed var(--tg-border);
+      border-radius: 8px;
+    }
+
+    .history-item {
+      border: 1px solid var(--tg-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: var(--tg-surface-2);
+    }
+
+    .history-url {
+      color: var(--tg-gold);
+      font-size: 11px;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 4px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .history-meta {
+      color: var(--tg-body);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .history-risk {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--tg-border);
+      color: var(--tg-bold);
+    }
+
+    .scan-btn {
+      width: 100%;
+      background: var(--tg-accent-soft);
+      border: 1px solid var(--tg-accent-soft-2);
+      color: var(--tg-gold);
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .scan-btn:hover {
+      background: var(--tg-accent-soft-2);
+    }
+
+    .how-it-works {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--tg-body);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    .how-it-works span {
+      color: var(--tg-gold);
+    }
+
+    a {
+      color: var(--tg-gold);
+      text-decoration: none;
+      font-size: 11px;
+    }
+    a:hover { text-decoration: underline; }
+
+    .key-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <span class="shield">🛡️</span>
+      <span class="app-name">TOS Guardian</span>
+    </div>
+    <div class="tagline">Reads the fine print so you don't have to</div>
+  </div>
+
+  <div class="body">
+    <div class="tabs">
+      <button id="settingsTabBtn" class="tab-btn active">Settings</button>
+      <button id="historyTabBtn" class="tab-btn">History</button>
+    </div>
+
+    <div id="settingsPanel" class="tab-panel active">
+      <div class="key-row">
+        <label>Google AI Studio Key</label>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">Get key →</a>
+      </div>
+      <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
+
+      <hr class="divider">
+
+      <label>Cache API Base URL</label>
+      <input type="text" id="cacheApiBaseUrl" placeholder="http://localhost:8787" autocomplete="off">
+
+      <button class="save-btn" id="saveBtn">Save Settings</button>
+      <div class="status" id="status"></div>
+
+      <hr class="divider">
+
+      <button class="scan-btn" id="scanBtn">🔍 Scan This Page Now</button>
+
+      <div class="how-it-works">
+        TOS Guardian <span>auto-detects</span> Terms & Conditions pages and shows a panel to analyze red flags with AI. Use "Scan This Page" to trigger it manually on any page.
+      </div>
+    </div>
+
+    <div id="historyPanel" class="tab-panel">
+      <label>Search History</label>
+      <div class="history-toolbar">
+        <input type="text" id="historySearch" placeholder="Filter by URL">
+        <button id="historyRefreshBtn" class="refresh-btn">Refresh</button>
+      </div>
+      <div id="historyStatus" class="status"></div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
