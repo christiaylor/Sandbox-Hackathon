@@ -174,6 +174,22 @@
       background: var(--gold);
     }
 
+        /* small instruction link under the download button */
+    .download-instructions {
+      display: inline-block;
+      margin-top: 8px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      color: var(--gold-pale);
+      text-decoration: underline;
+      opacity: 0.95;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .download-instructions:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
     h1 {
       font-family: 'Roboto Slab', serif;
       font-size: clamp(38px, 5.5vw, 68px);
@@ -609,6 +625,8 @@
           Download Beta — Free
         </a>
         <span class="hero-note">Chrome only &nbsp;·&nbsp; unzip &amp; load in chrome://extensions</span>
+          <!-- NEW: tiny link to the instructions lower on the page -->
+        <a href="#instructions" class="download-instructions">See install instructions ↓</a>
       </div>
     </div>
     <div class="hero-rule"></div>
