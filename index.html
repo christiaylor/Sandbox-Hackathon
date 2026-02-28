@@ -340,6 +340,100 @@ nav {
   margin-top: 30px; color: #7ecfa0; font-family: 'Courier Prime', monospace;
 }
 
+/* ── Pricing Grid & Cards ── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.price-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-ui);
+  padding: 50px 40px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.price-card.featured {
+  border-color: var(--gold);
+  background: var(--bg-surface);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 20px var(--gold-glow);
+  transform: scale(1.05);
+}
+
+.badge {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--gold);
+  color: #fff;
+  font-family: 'Courier Prime', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.price-amount {
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--text-head);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+
+.price-amount span {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.price-features {
+  list-style: none;
+  text-align: left;
+  margin: 30px 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.price-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--text-body);
+}
+
+.price-features li svg { color: var(--gold); flex-shrink: 0; }
+.price-features li.disabled { opacity: 0.4; text-decoration: line-through; }
+
+.btn-price {
+  width: 100%;
+  display: inline-block;
+  padding: 16px;
+  border: 1px solid var(--border-ui);
+  border-radius: 4px;
+  font-family: 'Courier Prime', monospace;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: 0.2s;
+}
+
+.featured .btn-price { background: var(--gold); color: #fff; border-color: var(--gold); }
+.btn-price:hover { background: var(--gold-bright); color: #fff; }
+
 .email-fine-print { font-size: 12px; color: var(--text-muted); margin-top: 30px; line-height: 1.5; transition: color var(--transition-speed); }
 
 /* ── Footer ── */
@@ -497,6 +591,49 @@ footer {
       <p class="email-fine-print">Your email will only be used to notify you about TOS Guardian's public release. No newsletter. No marketing. No permanent storage.</p>
     </div>
   </div>
+
+  <!-- PRICING SECTION -->
+
+<div class="section" id="pricing">
+<p class="section-label reveal">Pricing</p>
+<h2 class="reveal">Simple, transparent
+
+
+
+<em>protection</em></h2>
+<p class="section-intro reveal">Choose the plan that fits your browsing habits.</p>
+
+<div class="pricing-grid">
+<!-- Free Tier -->
+<div class="price-card reveal">
+<div style="font-family: 'Courier Prime', monospace; color: var(--gold); margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">Starter</div>
+<div class="price-amount">$0<span>/mo</span></div>
+<p style="color: var(--text-muted); font-size: 15px;">Basic analysis for occasional use.</p>
+<ul class="price-features">
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 analyses per month</li>
+<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> High-severity flags</li>
+<li class="disabled"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Unlimited scans</li>
+</ul>
+<a href="#" class="btn-price">Current Plan</a>
+</div>
+
+<!-- Paid Tier -->
+<div class="price-card featured reveal">
+  <div class="badge">Best Value</div>
+  <div style="font-family: 'Courier Prime', monospace; color: var(--gold); margin-bottom: 20px; font-weight: 700; text-transform: uppercase;">Guardian Pro</div>
+  <div class="price-amount">$2<span>/mo</span></div>
+  <p style="color: var(--text-muted); font-size: 15px;">Complete protection for active users.</p>
+  <ul class="price-features">
+    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited analyses</li>
+    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> All severity levels</li>
+    <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority Support</li>
+  </ul>
+  <a href="#" class="btn-price">Upgrade Now</a>
+</div>
+
+
+</div>
+</div>
 
   <!-- FOOTER -->
   <footer>
