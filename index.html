@@ -338,6 +338,17 @@
         height: 1px;
         background: var(--gold);
       }
+      .section-label.centered {
+        justify-content: center;
+        gap: 10px;
+      }
+      .section-label.centered::before,
+      .section-label.centered::after {
+        content: "";
+        width: 22px;
+        height: 1px;
+        background: var(--gold);
+      }
       .section-intro {
         font-size: 20px;
         color: var(--text-muted);
@@ -817,7 +828,7 @@
     <!-- EMAIL SECTION (only the plain MailerLite embed kept) -->
     <div class="email-section">
       <div class="email-section-inner">
-        <p class="section-label reveal">Stay informed</p>
+        <p class="section-label centered reveal">Stay informed</p>
         <h2 class="reveal">
           Get notified when we<br /><em>launch on the Chrome Store</em>
         </h2>
