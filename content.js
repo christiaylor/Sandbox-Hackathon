@@ -201,7 +201,9 @@
     panel.innerHTML = `
       <div id="tg-header">
         <div id="tg-logo">
-          <span id="tg-shield">🛡️</span>
+          <svg id="tg-logo-mark" viewBox="0 0 742 684" aria-hidden="true">
+            <path fill="currentColor" d="M347.827,62.859c-.314-.28.021-.007-.036-.058-.041-.024-.721-.296-2.157-.543-1.042-.236-2.39-.206-3.441-.348-10.424-.259-19.85,1.313-30.644,3.031-33.31,5.694-73.711,15.666-107.243,22.718-50.82,10.993-123.586,25.554-175.372,35.231.001,0,17.821-22.751,17.821-22.751-.007.064-.01.251-.012.44,0,0-.006.562-.006.562l-.004,1.195c.042,5.955.217,11.879.53,17.856,8.964,163.155,77.11,324.741,197.447,436.826,39.723,37.254,84.78,68.95,132.993,94.236,0,0-15.284,0-15.284,0,32.046-18.008,63.124-38.686,91.442-62.113,114.546-93.087,188.016-229.599,218.965-372.695,2.573-11.941,4.917-23.922,6.964-35.941,0,0,32.555,30.682,32.555,30.682-71.963,18.798-145.73,35.853-220.662,39.873-41.741,1.286-88.5.264-124.685-24.942-16.491-11.769-29.038-30.214-32.955-50.387-6.006-27.765,3.12-57.574,10.118-83.036,1.252-4.721,2.375-9.213,3.174-13.276,1.093-5.771,2.002-11.637.958-15.783-.107-.326-.162-.4-.197-.455-.039-.052-.073-.111-.272-.323h0ZM392.295,19.655c24.391,25.267,20.111,58.654,11.536,89.029-4.507,18.003-13.702,42.197-8.86,58.009,5.142,13.855,24.492,18.746,38.765,21.739,27.545,5.092,57.262,4.014,85.386,1.881,50.257-4.159,100.81-13.422,150.29-24.064,19.759-4.25,50.975-11.378,70.829-15.726-5.887,28.807-12.828,64.117-20.689,92.114-50.777,186.318-168.979,347.429-341.85,436.976,0,0-7.836,4.163-7.836,4.163,0,0-7.447-4.162-7.447-4.162C201.808,591.326,96.358,447.285,38.888,275.217,20.441,219.294,6.314,161.566,1.161,102.756c0,0-.102-1.699-.102-1.699,0,0-1.059-17.629-1.059-17.629l18.88-5.123C80.466,61.952,217.769,23.284,277.827,9.36,297.774,4.908,318.104.485,339.049.016c19.617-.34,38.934,4.826,53.247,19.64h0Z"/>
+          </svg>
           <span id="tg-title">TOS Guardian</span>
         </div>
         <div id="tg-controls">
@@ -282,8 +284,11 @@
         align-items: center;
         gap: 8px;
       }
-      #tg-shield {
-        font-size: 20px;
+      #tg-logo-mark {
+        width: 20px;
+        height: 20px;
+        color: var(--tg-gold);
+        flex: 0 0 auto;
       }
       #tg-title {
         font-size: 15px;
@@ -379,6 +384,53 @@
         font-size: 12px;
         line-height: 1.6;
         color: var(--tg-body);
+      }
+      .tg-risk-card {
+        border: 1px solid var(--tg-accent-soft-2);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        background: var(--tg-accent-soft);
+      }
+      .tg-risk-score {
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 0.8px;
+      }
+      .tg-risk-reason {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--tg-body);
+      }
+      .tg-risk-high .tg-risk-score { color: var(--tg-danger); }
+      .tg-risk-medium .tg-risk-score { color: var(--tg-gold); }
+      .tg-risk-low .tg-risk-score { color: var(--tg-ok); }
+      .tg-sentence-summary {
+        margin-bottom: 12px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--tg-bold);
+      }
+      .tg-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .tg-category-card {
+        border: 1px solid var(--tg-border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 11px;
+        line-height: 1.5;
+        color: var(--tg-body);
+      }
+      .tg-empty-group {
+        font-size: 11px;
+        color: var(--tg-muted);
+        margin: 0 0 10px;
+        padding: 6px 2px;
       }
       .tg-section-title {
         font-size: 11px;
@@ -537,45 +589,65 @@
       html += `<div class="tg-hint" style="margin-bottom:10px;color:var(--tg-gold)">${escapeHtml(cacheLabel)}</div>`;
     }
 
-    const summaryBits = [
-      data.overall_risk ? `Risk: ${data.overall_risk}` : '',
-      data.overall_risk_reason || '',
-      data.your_data || '',
-      data.billing_and_cancellation || '',
-      data.dispute_resolution || '',
-      data.account_termination || '',
-      data.your_content || '',
-      data.changes_to_terms || ''
-    ].filter(Boolean);
+    const riskValueRaw = (data.overall_risk || 'Unknown').toString();
+    const riskValue = riskValueRaw.toUpperCase();
+    const riskClass = riskValue.includes('HIGH')
+      ? 'tg-risk-high'
+      : riskValue.includes('MED')
+        ? 'tg-risk-medium'
+        : riskValue.includes('LOW')
+          ? 'tg-risk-low'
+          : '';
+    const riskSummary =
+      data.risk_summary ||
+      [data.overall_risk_reason, data.plain_language_summary, data.summary].filter(Boolean).join(' ');
+    const riskReason = riskSummary || 'No summary returned.';
+    html += `
+      <div class="tg-risk-card ${riskClass}">
+        <div class="tg-risk-score">OVERALL RISK: ${escapeHtml(riskValue)}</div>
+        <div class="tg-risk-reason">${escapeHtml(riskReason)}</div>
+      </div>
+    `;
 
-    if (summaryBits.length) {
-      html += `<div class="tg-summary">${escapeHtml(summaryBits.join('\n\n')).replace(/\n/g, '<br>')}</div>`;
+    const groups = [
+      { label: `🔴 High Concern (${highFlags.length})`, items: highFlags },
+      { label: `🟡 Worth Noting (${medFlags.length})`, items: medFlags },
+      { label: `🔵 Minor Points (${lowFlags.length})`, items: lowFlags },
+    ];
+
+    for (const group of groups) {
+      html += `<div class="tg-section-title">${group.label}</div>`;
+      if (group.items.length === 0) {
+        html += `<p class="tg-empty-group">No concerns in this category.</p>`;
+        continue;
+      }
+      for (const flag of group.items) {
+        const sevClass = flag.severity === 'HIGH' ? 'sev-high' : flag.severity === 'MEDIUM' ? 'sev-medium' : 'sev-low';
+        html += `
+          <div class="tg-flag">
+            <div class="tg-flag-header">
+              <span class="tg-severity ${sevClass}">${flag.severity}</span>
+              <span class="tg-flag-title">${escapeHtml(flag.title)}</span>
+            </div>
+            <p class="tg-flag-desc">${escapeHtml(flag.description)}</p>
+          </div>`;
+      }
     }
 
-    if (flags.length === 0) {
-      html += `<div class="tg-ok">✅ No major red flags detected. Still read carefully!</div>`;
-    } else {
-      const groups = [
-        { label: '🔴 High Concern', items: highFlags },
-        { label: '🟡 Worth Noting', items: medFlags },
-        { label: '🔵 Minor Points', items: lowFlags },
-      ];
+    const categories = [
+      data.your_data,
+      data.billing_and_cancellation,
+      data.dispute_resolution,
+      data.account_termination,
+      data.your_content,
+      data.changes_to_terms,
+    ].filter(Boolean);
 
-      for (const group of groups) {
-        if (group.items.length === 0) continue;
-        html += `<div class="tg-section-title">${group.label}</div>`;
-        for (const flag of group.items) {
-          const sevClass = flag.severity === 'HIGH' ? 'sev-high' : flag.severity === 'MEDIUM' ? 'sev-medium' : 'sev-low';
-          html += `
-            <div class="tg-flag">
-              <div class="tg-flag-header">
-                <span class="tg-severity ${sevClass}">${flag.severity}</span>
-                <span class="tg-flag-title">${escapeHtml(flag.title)}</span>
-              </div>
-              <p class="tg-flag-desc">${escapeHtml(flag.description)}</p>
-            </div>`;
-        }
-      }
+    if (categories.length) {
+      html += `<div class="tg-section-title">Policy Breakdown</div>`;
+      html += '<div class="tg-categories">';
+      html += categories.map((line) => `<div class="tg-category-card">${escapeHtml(line)}</div>`).join('');
+      html += '</div>';
     }
 
     html += `<div class="tg-footer">Powered by Gemini · Always read original document</div>`;

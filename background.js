@@ -253,7 +253,7 @@ Return ONLY valid JSON (no markdown, no explanation outside the JSON) in this ex
 
 {
   "overall_risk": "Low | Medium | High",
-  "overall_risk_reason": "One sentence explanation.",
+  "risk_summary": "1-2 short sentences in plain English combining why this risk score was assigned and what agreeing means for a typical user.",
   "flags": [
     {
       "severity": "HIGH | MEDIUM | LOW",
@@ -282,7 +282,7 @@ Severity levels:
 - MEDIUM: Worth knowing (data sharing with third parties, opt-out clauses, content ownership claims, unilateral change rights)
 - LOW: Minor concerns (cookie usage, standard contact clauses, minor limitations)
 
-Be neutral and plain-spoken. Only editorialize in the flags and overall_risk_reason fields. If nothing concerning is found, return an empty flags array.
+Be neutral and plain-spoken. Only editorialize in the flags and risk_summary fields. If nothing concerning is found, return an empty flags array.
 
 TERMS & CONDITIONS TEXT:
 ${tosText}`;
