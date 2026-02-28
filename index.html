@@ -492,6 +492,8 @@
         border-radius: 12px;
         text-align: center;
         position: relative;
+        display: flex;
+        flex-direction: column;
         transition: all 0.4s ease;
       }
       .price-card.featured {
@@ -557,11 +559,14 @@
       .btn-price {
         width: 100%;
         display: inline-block;
+        margin-top: auto;
         padding: 16px;
         border: 1px solid var(--border-ui);
         border-radius: 4px;
         font-family: "Courier Prime", monospace;
         font-weight: 700;
+        color: var(--gold);
+        background: var(--gold-glow);
         text-decoration: none;
         text-transform: uppercase;
         transition: 0.2s;
@@ -574,6 +579,7 @@
       .btn-price:hover {
         background: var(--gold-bright);
         color: #fff;
+        border-color: var(--gold-bright);
       }
       .email-fine-print {
         font-size: 12px;
@@ -754,7 +760,7 @@
     <div class="section" id="instructions">
       <p class="section-label reveal">How it works</p>
       <h2 class="reveal">Up and running <em>in under two minutes</em></h2>
-
+      <br />
       <div class="steps">
         <div class="step reveal">
           <div class="step-num">Step 01</div>
@@ -829,7 +835,7 @@
       <p class="section-label reveal">Pricing</p>
       <h2 class="reveal">Simple, transparent <em>protection</em></h2>
       <p class="section-intro reveal">
-        Choose the plan that fits your browsing habits.
+        Use it free forever with your own key, or go Pro for hosted intelligence.
       </p>
 
       <div class="pricing-grid">
@@ -844,11 +850,11 @@
               text-transform: uppercase;
             "
           >
-            Starter
+            Self-Hosted
           </div>
           <div class="price-amount">$0<span>/mo</span></div>
           <p style="color: var(--text-muted); font-size: 15px">
-            Basic analysis for occasional use.
+            Forever free. Bring your own Google AI Studio key and keep full control.
           </p>
           <ul class="price-features">
             <li>
@@ -862,7 +868,7 @@
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              5 analyses per day
+              Full extension — all features unlocked
             </li>
             <li>
               <svg
@@ -875,9 +881,9 @@
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              High-severity flags
+              AI analysis powered by your own API key
             </li>
-            <li class="disabled">
+            <li>
               <svg
                 width="16"
                 height="16"
@@ -886,18 +892,43 @@
                 stroke="currentColor"
                 stroke-width="3"
               >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              Unlimited scans
+              Runs locally — nothing leaves your browser
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Open source on GitHub — audit every line
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Community flag library (crowdsourced)
             </li>
           </ul>
-          <a href="#" class="btn-price">Current Plan</a>
+          <a href="#" class="btn-price">Download Free</a>
         </div>
 
         <!-- Paid Tier -->
         <div class="price-card featured reveal">
-          <div class="badge">Best Value</div>
+          <div class="badge">Most Popular</div>
           <div
             style="
               font-family: &quot;Courier Prime&quot;, monospace;
@@ -909,9 +940,9 @@
           >
             Guardian Pro
           </div>
-          <div class="price-amount">$2<span>/mo</span></div>
+          <div class="price-amount">$3<span>/mo</span></div>
           <p style="color: var(--text-muted); font-size: 15px">
-            Complete protection for active users.
+            We handle the API. You get deeper intelligence — including our curated policy database.
           </p>
           <ul class="price-features">
             <li>
@@ -925,7 +956,7 @@
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              Unlimited analyses
+              Everything in Self-Hosted
             </li>
             <li>
               <svg
@@ -938,7 +969,7 @@
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              All severity levels
+              No API key required — we manage it
             </li>
             <li>
               <svg
@@ -951,10 +982,49 @@
               >
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              Priority Support
+              Policy Database access — thorough human-reviewed breakdowns for hundreds of major platforms
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Instant results for known services (no AI call needed)
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Priority updates as policies change
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Support independent development
             </li>
           </ul>
-          <a href="#" class="btn-price">Upgrade Now</a>
+          <a href="#" class="btn-price">Get Early Access — $3/mo</a>
         </div>
       </div>
     </div>
