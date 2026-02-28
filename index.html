@@ -1,257 +1,1012 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TOS Guardian — Know What You're Signing</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <style> /* ─────────────────────────────────────────    THEME TOKENS ───────────────────────────────────────── */
-:root { --transition-speed: 0.3s; }
- [data-theme="dark"]{
-  --bg:#060d1a;--bg-surface:#0a1427;--bg-raised:#0f1e38;--bg-card:rgba(255,255,255,0.04);
-  --bg-card-hov:rgba(255,255,255,0.07);--text-head:#f0ece3;--text-body:#c8d0db;--text-muted:#7a8799;
-  --text-faint:rgba(255,255,255,0.32);--border:rgba(210,172,45,0.16);--border-ui:rgba(255,255,255,0.09);
-  --gold:#D4AF37;--gold-bright:#F1C85A;--gold-glow:rgba(212,175,55,0.18);--red-flag:#e05252;
-  --amber-flag:#c98a20;--blue-flag:#4a8fc2;--hero-glow:rgba(212,175,55,0.07);--nav-bg:rgba(6,13,26,0.96);
-  --shadow-card:0 4px 32px rgba(0,0,0,0.4); }
- [data-theme="light"]{
-  --bg:#fcfbf7;--bg-surface:#ffffff;--bg-raised:#f4f2ed;--bg-card:#ffffff;--bg-card-hov:#fcfbf7;
-  --text-head:#1a1d23;--text-body:#454b54;--text-muted:#828a94;--text-faint:rgba(0,0,0,0.08);
-  --border:rgba(180,150,60,0.25);--border-ui:rgba(0,0,0,0.08);--gold:#b38f2d;--gold-bright:#8c6d1a;
-  --gold-glow:rgba(180,150,60,0.12);--red-flag:#d63031;--amber-flag:#e67e22;--blue-flag:#2980b9;
-  --hero-glow:rgba(180,150,60,0.06);--nav-bg:rgba(252,251,247,0.96);--shadow-card:0 10px 40px rgba(0,0,0,0.06);
-}
-/* Reset & Base */ *{box-sizing:border-box;margin:0;padding:0} html{scroll-behavior:smooth} [id]{scroll-margin-top:100px} body{
-  background:var(--bg);color:var(--text-body);font-family:'DM Sans',system-ui,-apple-system,sans-serif;
-  line-height:1.7;transition:background var(--transition-speed),color var(--transition-speed);overflow-x:hidden;position:relative; }
- h1,h2,.nav-logo-text{font-family:'Playfair Display',serif;color:var(--text-head);letter-spacing:-0.02em;transition:color var(--transition-speed)} em{font-style:italic;color:var(--gold)}
-/* NAV */ nav{
-  position:fixed;top:0;width:100%;height:80px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 6%;background:var(--nav-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border-ui);z-index:1000;transition:background var(--transition-speed),border-color var(--transition-speed) }
- .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none} .nav-logo-mark{font-size:24px} .nav-logo-text{font-size:22px;font-weight:900} .nav-logo-text span{font-weight:400;opacity:0.7} .nav-right{display:flex;align-items:center;gap:24px} .theme-toggle{
-  background:none;border:1px solid var(--border-ui);padding:6px 14px;border-radius:20px;color:var(--text-muted);cursor:pointer;
-  display:flex;align-items:center;gap:8px;font-family:'Courier Prime',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s } .theme-toggle:hover{border-color:var(--gold);color:var(--gold)} .nav-cta{background:var(--gold);color:#fff;padding:10px 22px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:13px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:1px;transition:0.2s} .nav-cta:hover{background:var(--gold-bright);transform:translateY(-1px)}
-/* Hero */ .hero{padding:220px 6% 120px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative} .hero::after{content:"";position:absolute;top:15%;width:50vw;height:50vw;background:radial-gradient(circle,var(--hero-glow) 0%,transparent 70%);z-index:-1;transition:background var(--transition-speed)} .hero-inner{max-width:880px} .hero-eyebrow{font-family:'Courier Prime',monospace;color:var(--gold);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:24px} .hero h1{font-size:clamp(48px,8vw,84px);line-height:1.05;margin-bottom:32px} .hero-sub{font-size:clamp(18px,2.2vw,22px);color:var(--text-muted);max-width:640px;margin:0 auto 48px;font-weight:300;transition:color var(--transition-speed)} .btn-primary{display:inline-flex;align-items:center;gap:12px;background:var(--gold);color:#fff;padding:20px 40px;border-radius:4px;font-family:'Courier Prime',monospace;font-size:16px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:1px;transition:0.3s;box-shadow:0 10px 30px rgba(0,0,0,0.15)} .btn-primary:hover{background:var(--gold-bright);transform:translateY(-3px);box-shadow:0 15px 40px var(--gold-glow)} .hero-note{display:block;margin-top:20px;font-family:'Courier Prime',monospace;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px} .download-instructions{color:var(--gold);font-size:13px;text-decoration:none;border-bottom:1px solid transparent;transition:0.2s;margin-top:8px;display:inline-block} .download-instructions:hover{border-bottom-color:var(--gold)}
-/* Trust Bar */ .trust-bar{border-top:1px solid var(--border-ui);border-bottom:1px solid var(--border-ui);background:var(--bg-surface);padding:30px 6%;transition:background var(--transition-speed),border-color var(--transition-speed)} .trust-bar-inner{display:flex;justify-content:center;gap:60px;flex-wrap:wrap} .trust-item{display:flex;align-items:center;gap:10px;font-family:'Courier Prime',monospace;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px} .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
-/* Sections */ .section{padding:120px 8%;max-width:1400px;margin:0 auto} .section-label{font-family:'Courier Prime',monospace;color:var(--gold);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:3px;margin-bottom:16px;display:flex;align-items:center;gap:15px} .section-label::before{content:"";width:40px;height:1px;background:var(--gold)} .section-intro{font-size:20px;color:var(--text-muted);max-width:700px;margin-bottom:60px;transition:color var(--transition-speed)}
-/* Flags grid */ .flags-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px} .flag-card{background:var(--bg-card);border:1px solid var(--border-ui);padding:40px;border-radius:8px;transition:all 0.3s cubic-bezier(0.23,1,0.32,1);position:relative;overflow:hidden} .flag-card:hover{background:var(--bg-card-hov);border-color:var(--border);transform:translateY(-5px);box-shadow:var(--shadow-card)} .flag-severity{font-family:'Courier Prime',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:24px;padding-left:12px;position:relative} .flag-severity::after{content:"";position:absolute;left:0;top:0;width:3px;height:100%;border-radius:2px} .high .flag-severity{color:var(--red-flag)}.high .flag-severity::after{background:var(--red-flag)} .medium .flag-severity{color:var(--amber-flag)}.medium .flag-severity::after{background:var(--amber-flag)} .low .flag-severity{color:var(--blue-flag)}.low .flag-severity::after{background:var(--blue-flag)} .flag-title{font-size:22px;font-weight:700;color:var(--text-head);margin-bottom:16px;transition:color var(--transition-speed)} .flag-desc{font-size:16px;color:var(--text-muted);line-height:1.6;transition:color var(--transition-speed)}
-/* Steps */ .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:40px} .step{position:relative} .step-num{font-family:'Courier Prime',monospace;font-size:13px;color:var(--gold);margin-bottom:20px;font-weight:700} .step-title{font-size:24px;font-weight:700;color:var(--text-head);margin-bottom:16px;transition:color var(--transition-speed)} .step-desc{color:var(--text-muted);transition:color var(--transition-speed)}
-/* Email Section */ .email-section{background:var(--bg-surface);padding:100px 6%;text-align:center;border-top:1px solid var(--border-ui);transition:background var(--transition-speed),border-color var(--transition-speed)} .email-section-inner{max-width:600px;margin:0 auto}
-/* NOTE: show the MailerLite embed by default so static sites without a backend can use it */ .ml-embedded{display:block;margin-top:18px}
-/* small screens */ @media (max-width:480px){
-  .email-form{flex-direction:column;gap:8px;padding:0;background:none;border:none}
-  .email-input{width:100%;background:var(--bg-raised);border:1px solid var(--border-ui);border-radius:6px;padding:12px}
-}
-/* Pricing & Footer (unchanged) */ .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:40px;max-width:900px;margin:0 auto} .price-card{background:var(--bg-card);border:1px solid var(--border-ui);padding:50px 40px;border-radius:12px;text-align:center;position:relative;transition:all 0.4s ease} .price-card.featured{border-color:var(--gold);background:var(--bg-surface);box-shadow:0 20px 50px rgba(0,0,0,0.2),0 0 20px var(--gold-glow);transform:scale(1.05)} .badge{position:absolute;top:20px;right:20px;background:var(--gold);color:#fff;font-family:'Courier Prime',monospace;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:1px} .price-amount{font-size:64px;font-weight:900;color:var(--text-head);margin-bottom:10px;display:flex;align-items:baseline;justify-content:center;gap:4px} .price-amount span{font-size:18px;color:var(--text-muted);font-weight:400} .price-features{list-style:none;text-align:left;margin:30px 0 40px;display:flex;flex-direction:column;gap:15px} .price-features li{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--text-body)} .price-features li svg{color:var(--gold);flex-shrink:0}.price-features li.disabled{opacity:0.4;text-decoration:line-through} .btn-price{width:100%;display:inline-block;padding:16px;border:1px solid var(--border-ui);border-radius:4px;font-family:'Courier Prime',monospace;font-weight:700;text-decoration:none;text-transform:uppercase;transition:0.2s} .featured .btn-price{background:var(--gold);color:#fff;border-color:var(--gold)}.btn-price:hover{background:var(--gold-bright);color:#fff} .email-fine-print{font-size:12px;color:var(--text-muted);margin-top:30px;line-height:1.5;transition:color var(--transition-speed)}
- footer{padding:60px 6%;border-top:1px solid var(--border-ui);display:flex;justify-content:space-between;align-items:center;color:var(--text-muted);font-family:'Courier Prime',monospace;font-size:12px;transition:border-color var(--transition-speed),color var(--transition-speed)}
-/* reveal animations */ .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease,transform 0.8s ease} .reveal.visible{opacity:1;transform:translateY(0)}
-  </style>
-</head>
-<body data-theme="dark">
-
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo">
-      <div class="nav-logo-mark">🛡️</div>
-      <span class="nav-logo-text">TOS <span>Guardian</span></span>
-    </a>
-    <div class="nav-right">
-      <button class="theme-toggle" id="themeToggle">
-        <span id="themeIcon">☀️</span>
-        <span id="themeLabel">Light</span>
-      </button>
-      <a href="#download" class="nav-cta">Download Free</a>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-eyebrow">Free Chrome Extension · Open Beta</div>
-      <h1 class="reveal">You agreed to <em>what,</em><br>exactly?</h1>
-      <p class="hero-sub reveal">TOS Guardian reads Terms &amp; Conditions for you and flags the clauses that should make you pause — before you click Accept.</p>
-
-      <div class="hero-actions reveal">
-        <a href="tos-guardian.zip" download class="btn-primary" id="download">
-          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M8 2v8M5 7l3 3 3-3M2 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Download Beta — Free
-        </a>
-        <span class="hero-note">Chrome only &nbsp;·&nbsp; unzip &amp; load in chrome://extensions</span>
-        <a href="#instructions" class="download-instructions">Install instructions</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRUST BAR -->
-  <div class="trust-bar">
-    <div class="trust-bar-inner">
-      <div class="trust-item"><span class="dot"></span> Runs locally in your browser</div>
-      <div class="trust-item"><span class="dot"></span> No account required</div>
-      <div class="trust-item"><span class="dot"></span> Free during beta</div>
-    </div>
-  </div>
-
-  <!-- WHAT IT CATCHES -->
-  <div class="section">
-    <p class="section-label reveal">What it catches</p>
-    <h2 class="reveal">The clauses companies<br><em>hope you skip</em></h2>
-    <p class="section-intro reveal">Most people scroll past thousands of words of legal text. TOS Guardian uses AI to surface what actually matters, ranked by how much it should concern you.</p>
-
-    <div class="flags-grid reveal">
-      <div class="flag-card high">
-        <div class="flag-severity">High Concern</div>
-        <div class="flag-title">Forced Arbitration Clause</div>
-        <div class="flag-desc">You waive your right to sue in court. Disputes go to a private arbitrator — usually paid by the company.</div>
-      </div>
-      <div class="flag-card high">
-        <div class="flag-severity">High Concern</div>
-        <div class="flag-title">Data Sold to Third Parties</div>
-        <div class="flag-desc">The service can sell or share your personal data with advertisers or data brokers.</div>
-      </div>
-      <div class="flag-card high">
-        <div class="flag-severity">High Concern</div>
-        <div class="flag-title">Auto-Renewal Trap</div>
-        <div class="flag-desc">Free trials silently convert to paid subscriptions without clear notice to the user.</div>
-      </div>
-      <div class="flag-card medium">
-        <div class="flag-severity">Worth Noting</div>
-        <div class="flag-title">Content Ownership Claim</div>
-        <div class="flag-desc">The platform claims a license to use, modify, or distribute anything you upload.</div>
-      </div>
-      <div class="flag-card medium">
-        <div class="flag-severity">Worth Noting</div>
-        <div class="flag-title">Unilateral Terms Changes</div>
-        <div class="flag-desc">The company can change these terms at any time, with or without notifying you first.</div>
-      </div>
-      <div class="flag-card low">
-        <div class="flag-severity">Minor Point</div>
-        <div class="flag-title">Broad Liability Waiver</div>
-        <div class="flag-desc">The service disclaims responsibility for virtually any harm caused by their platform.</div>
-      </div>
-    </div>
-  </div>
-
-  <hr style="border:0;height:1px;background:var(--border-ui);margin:0 6%;" />
-
-  <!-- HOW IT WORKS -->
-  <div class="section" id="instructions">
-    <p class="section-label reveal">How it works</p>
-    <h2 class="reveal">Up and running<br><em>in under two minutes</em></h2>
-
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-num">Step 01</div>
-        <div class="step-title">Install the extension</div>
-        <div class="step-desc">Download the zip, unpack it, and load it into Chrome's developer mode. Takes about 60 seconds.</div>
-      </div>
-      <div class="step reveal">
-        <div class="step-num">Step 02</div>
-        <div class="step-title">Add your API key</div>
-        <div class="step-desc">Paste your free Google AI Studio key into the extension popup. One-time setup, nothing stored on our servers.</div>
-      </div>
-      <div class="step reveal">
-        <div class="step-num">Step 03</div>
-        <div class="step-title">Read what matters</div>
-        <div class="step-desc">When you land on a T&C page, click Analyze. Make an informed decision in seconds.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MailerLite Universal -->
-  <script>
-    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);},l=d.createElement(e),l.async=1,l.src=u,n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
-    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-    ml('account', '2150699');
-  </script>
-
-  <!-- EMAIL SECTION (only the plain MailerLite embed kept) -->
-  <div class="email-section">
-    <div class="email-section-inner">
-      <p class="section-label reveal">Stay informed</p>
-      <h2 class="reveal">Get notified when we<br><em>launch on the Chrome Store</em></h2>
-
-      <!-- Only the MailerLite embed remains (no custom form or JS) -->
-      <div class="ml-embedded" data-form="ZtjZJC"></div>
-
-      <p class="email-fine-print">Your email will only be used to notify you about TOS Guardian's public release. No newsletter. No marketing. No permanent storage.</p>
-    </div>
-  </div>
-
-  <!-- PRICING SECTION -->
-  <div class="section" id="pricing">
-    <p class="section-label reveal">Pricing</p>
-    <h2 class="reveal">Simple, transparent<br /><em>protection</em></h2>
-    <p class="section-intro reveal">Choose the plan that fits your browsing habits.</p>
-
-    <div class="pricing-grid">
-      <!-- Free Tier -->
-      <div class="price-card reveal">
-        <div style="font-family:'Courier Prime',monospace;color:var(--gold);margin-bottom:20px;font-weight:700;text-transform:uppercase">Starter</div>
-        <div class="price-amount">$0<span>/mo</span></div>
-        <p style="color:var(--text-muted);font-size:15px">Basic analysis for occasional use.</p>
-        <ul class="price-features">
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 analyses per day</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> High-severity flags</li>
-          <li class="disabled"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Unlimited scans</li>
-        </ul>
-        <a href="#" class="btn-price">Current Plan</a>
-      </div>
-
-      <!-- Paid Tier -->
-      <div class="price-card featured reveal">
-        <div class="badge">Best Value</div>
-        <div style="font-family:'Courier Prime',monospace;color:var(--gold);margin-bottom:20px;font-weight:700;text-transform:uppercase">Guardian Pro</div>
-        <div class="price-amount">$2<span>/mo</span></div>
-        <p style="color:var(--text-muted);font-size:15px">Complete protection for active users.</p>
-        <ul class="price-features">
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited analyses</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> All severity levels</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority Support</li>
-        </ul>
-        <a href="#" class="btn-price">Upgrade Now</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-left">TOS Guardian — The Guardian of your digital rights.</div>
-    <div class="footer-right">Beta v1.0 · Free for testers</div>
-  </footer>
-
-  <script>
-    /* THEME TOGGLE */
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const themeLabel = document.getElementById('themeLabel');
-    const htmlEl = document.documentElement;
-    themeToggle.addEventListener('click', () => {
-      const current = htmlEl.getAttribute('data-theme');
-      const target = current === 'dark' ? 'light' : 'dark';
-      htmlEl.setAttribute('data-theme', target);
-      document.body.setAttribute('data-theme', target);
-      themeIcon.textContent = target === 'dark' ? '☀️' : '🌙';
-      themeLabel.textContent = target === 'dark' ? 'Light' : 'Dark';
-    });
-
-    /* SCROLL REVEAL */
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(el => {
-        if (el.isIntersecting) {
-          el.target.classList.add('visible');
-          observer.unobserve(el.target);
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TOS Guardian — Know What You're Signing</title>
+    <script>
+      (function () {
+        const prefersDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const initialTheme = prefersDark ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", initialTheme);
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ─────────────────────────────────────────    THEME TOKENS ───────────────────────────────────────── */
+      :root {
+        --transition-speed: 0.3s;
+      }
+      [data-theme="dark"] {
+        --bg: #060d1a;
+        --bg-surface: #0a1427;
+        --bg-raised: #0f1e38;
+        --bg-card: rgba(255, 255, 255, 0.04);
+        --bg-card-hov: rgba(255, 255, 255, 0.07);
+        --text-head: #f0ece3;
+        --text-body: #c8d0db;
+        --text-muted: #7a8799;
+        --text-faint: rgba(255, 255, 255, 0.32);
+        --border: rgba(210, 172, 45, 0.16);
+        --border-ui: rgba(255, 255, 255, 0.09);
+        --gold: #d4af37;
+        --gold-bright: #f1c85a;
+        --gold-glow: rgba(212, 175, 55, 0.18);
+        --red-flag: #e05252;
+        --amber-flag: #c98a20;
+        --blue-flag: #4a8fc2;
+        --hero-glow: rgba(212, 175, 55, 0.07);
+        --nav-bg: rgba(6, 13, 26, 0.96);
+        --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.4);
+      }
+      [data-theme="light"] {
+        --bg: #fcfbf7;
+        --bg-surface: #ffffff;
+        --bg-raised: #f4f2ed;
+        --bg-card: #ffffff;
+        --bg-card-hov: #fcfbf7;
+        --text-head: #1a1d23;
+        --text-body: #454b54;
+        --text-muted: #828a94;
+        --text-faint: rgba(0, 0, 0, 0.08);
+        --border: rgba(180, 150, 60, 0.25);
+        --border-ui: rgba(0, 0, 0, 0.08);
+        --gold: #b38f2d;
+        --gold-bright: #8c6d1a;
+        --gold-glow: rgba(180, 150, 60, 0.12);
+        --red-flag: #d63031;
+        --amber-flag: #e67e22;
+        --blue-flag: #2980b9;
+        --hero-glow: rgba(180, 150, 60, 0.06);
+        --nav-bg: rgba(252, 251, 247, 0.96);
+        --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.06);
+      }
+      /* Reset & Base */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      [id] {
+        scroll-margin-top: 100px;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text-body);
+        font-family:
+          "DM Sans",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.7;
+        transition:
+          background var(--transition-speed),
+          color var(--transition-speed);
+        overflow-x: hidden;
+        position: relative;
+      }
+      h1,
+      h2,
+      .nav-logo-text {
+        font-family: "Playfair Display", serif;
+        color: var(--text-head);
+        letter-spacing: -0.02em;
+        transition: color var(--transition-speed);
+      }
+      em {
+        font-style: italic;
+        color: var(--gold);
+      }
+      /* NAV */
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 6%;
+        background: var(--nav-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-ui);
+        z-index: 1000;
+        transition:
+          background var(--transition-speed),
+          border-color var(--transition-speed);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+      .nav-logo-mark {
+        width: 24px;
+        height: 24px;
+        display: block;
+        color: var(--gold);
+        flex: 0 0 auto;
+      }
+      .nav-logo-text {
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .nav-logo-text span {
+        font-weight: 400;
+        opacity: 0.7;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .theme-toggle {
+        background: none;
+        border: 1px solid var(--border-ui);
+        padding: 6px 14px;
+        border-radius: 20px;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Courier Prime", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s;
+      }
+      .theme-toggle:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .nav-cta {
+        background: var(--gold);
+        color: #fff;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-family: "Courier Prime", monospace;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.2s;
+      }
+      .nav-cta:hover {
+        background: var(--gold-bright);
+        transform: translateY(-1px);
+      }
+      /* Hero */
+      .hero {
+        padding: 220px 6% 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        top: 15%;
+        width: 50vw;
+        height: 50vw;
+        background: radial-gradient(
+          circle,
+          var(--hero-glow) 0%,
+          transparent 70%
+        );
+        z-index: -1;
+        transition: background var(--transition-speed);
+      }
+      .hero-inner {
+        max-width: 880px;
+      }
+      .hero-eyebrow {
+        font-family: "Courier Prime", monospace;
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 24px;
+      }
+      .hero h1 {
+        font-size: clamp(48px, 8vw, 84px);
+        line-height: 1.05;
+        margin-bottom: 32px;
+      }
+      .hero-sub {
+        font-size: clamp(18px, 2.2vw, 22px);
+        color: var(--text-muted);
+        max-width: 640px;
+        margin: 0 auto 48px;
+        font-weight: 300;
+        transition: color var(--transition-speed);
+      }
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--gold);
+        color: #fff;
+        padding: 20px 40px;
+        border-radius: 4px;
+        font-family: "Courier Prime", monospace;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      }
+      .btn-primary:hover {
+        background: var(--gold-bright);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px var(--gold-glow);
+      }
+      .hero-note {
+        display: block;
+        margin-top: 20px;
+        font-family: "Courier Prime", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .download-instructions {
+        color: var(--gold);
+        font-size: 13px;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: 0.2s;
+        margin-top: 8px;
+        display: inline-block;
+      }
+      .download-instructions:hover {
+        border-bottom-color: var(--gold);
+      }
+      /* Trust Bar */
+      .trust-bar {
+        border-top: 1px solid var(--border-ui);
+        border-bottom: 1px solid var(--border-ui);
+        background: var(--bg-surface);
+        padding: 30px 6%;
+        transition:
+          background var(--transition-speed),
+          border-color var(--transition-speed);
+      }
+      .trust-bar-inner {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+      .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Courier Prime", monospace;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+      }
+      /* Sections */
+      .section {
+        padding: 120px 8%;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .section-label {
+        font-family: "Courier Prime", monospace;
+        color: var(--gold);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .section-label::before {
+        content: "";
+        width: 40px;
+        height: 1px;
+        background: var(--gold);
+      }
+      .section-intro {
+        font-size: 20px;
+        color: var(--text-muted);
+        max-width: 700px;
+        margin-bottom: 60px;
+        transition: color var(--transition-speed);
+      }
+      /* Flags grid */
+      .flags-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+      }
+      .flag-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-ui);
+        padding: 40px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .flag-card:hover {
+        background: var(--bg-card-hov);
+        border-color: var(--border);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-card);
+      }
+      .flag-severity {
+        font-family: "Courier Prime", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 24px;
+        padding-left: 12px;
+        position: relative;
+      }
+      .flag-severity::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        border-radius: 2px;
+      }
+      .high .flag-severity {
+        color: var(--red-flag);
+      }
+      .high .flag-severity::after {
+        background: var(--red-flag);
+      }
+      .medium .flag-severity {
+        color: var(--amber-flag);
+      }
+      .medium .flag-severity::after {
+        background: var(--amber-flag);
+      }
+      .low .flag-severity {
+        color: var(--blue-flag);
+      }
+      .low .flag-severity::after {
+        background: var(--blue-flag);
+      }
+      .flag-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-head);
+        margin-bottom: 16px;
+        transition: color var(--transition-speed);
+      }
+      .flag-desc {
+        font-size: 16px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        transition: color var(--transition-speed);
+      }
+      /* Steps */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 40px;
+      }
+      .step {
+        position: relative;
+      }
+      .step-num {
+        font-family: "Courier Prime", monospace;
+        font-size: 13px;
+        color: var(--gold);
+        margin-bottom: 20px;
+        font-weight: 700;
+      }
+      .step-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-head);
+        margin-bottom: 16px;
+        transition: color var(--transition-speed);
+      }
+      .step-desc {
+        color: var(--text-muted);
+        transition: color var(--transition-speed);
+      }
+      /* Email Section */
+      .email-section {
+        background: var(--bg-surface);
+        padding: 100px 6%;
+        text-align: center;
+        border-top: 1px solid var(--border-ui);
+        transition:
+          background var(--transition-speed),
+          border-color var(--transition-speed);
+      }
+      .email-section-inner {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      /* NOTE: show the MailerLite embed by default so static sites without a backend can use it */
+      .ml-embedded {
+        display: block;
+        margin-top: 18px;
+      }
+      /* small screens */
+      @media (max-width: 480px) {
+        .email-form {
+          flex-direction: column;
+          gap: 8px;
+          padding: 0;
+          background: none;
+          border: none;
         }
-      });
-    }, { threshold: 0.07 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        .email-input {
+          width: 100%;
+          background: var(--bg-raised);
+          border: 1px solid var(--border-ui);
+          border-radius: 6px;
+          padding: 12px;
+        }
+      }
+      /* Pricing & Footer (unchanged) */
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .price-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-ui);
+        padding: 50px 40px;
+        border-radius: 12px;
+        text-align: center;
+        position: relative;
+        transition: all 0.4s ease;
+      }
+      .price-card.featured {
+        border-color: var(--gold);
+        background: var(--bg-surface);
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.2),
+          0 0 20px var(--gold-glow);
+        transform: scale(1.05);
+      }
+      .badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--gold);
+        color: #fff;
+        font-family: "Courier Prime", monospace;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .price-amount {
+        font-size: 64px;
+        font-weight: 900;
+        color: var(--text-head);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 4px;
+      }
+      .price-amount span {
+        font-size: 18px;
+        color: var(--text-muted);
+        font-weight: 400;
+      }
+      .price-features {
+        list-style: none;
+        text-align: left;
+        margin: 30px 0 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .price-features li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+        color: var(--text-body);
+      }
+      .price-features li svg {
+        color: var(--gold);
+        flex-shrink: 0;
+      }
+      .price-features li.disabled {
+        opacity: 0.4;
+        text-decoration: line-through;
+      }
+      .btn-price {
+        width: 100%;
+        display: inline-block;
+        padding: 16px;
+        border: 1px solid var(--border-ui);
+        border-radius: 4px;
+        font-family: "Courier Prime", monospace;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: 0.2s;
+      }
+      .featured .btn-price {
+        background: var(--gold);
+        color: #fff;
+        border-color: var(--gold);
+      }
+      .btn-price:hover {
+        background: var(--gold-bright);
+        color: #fff;
+      }
+      .email-fine-print {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 30px;
+        line-height: 1.5;
+        transition: color var(--transition-speed);
+      }
+      footer {
+        padding: 60px 6%;
+        border-top: 1px solid var(--border-ui);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-muted);
+        font-family: "Courier Prime", monospace;
+        font-size: 12px;
+        transition:
+          border-color var(--transition-speed),
+          color var(--transition-speed);
+      }
+      /* reveal animations */
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <a href="#" class="nav-logo">
+        <svg class="nav-logo-mark" viewBox="0 0 742 684" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M347.827,62.859c-.314-.28.021-.007-.036-.058-.041-.024-.721-.296-2.157-.543-1.042-.236-2.39-.206-3.441-.348-10.424-.259-19.85,1.313-30.644,3.031-33.31,5.694-73.711,15.666-107.243,22.718-50.82,10.993-123.586,25.554-175.372,35.231.001,0,17.821-22.751,17.821-22.751-.007.064-.01.251-.012.44,0,0-.006.562-.006.562l-.004,1.195c.042,5.955.217,11.879.53,17.856,8.964,163.155,77.11,324.741,197.447,436.826,39.723,37.254,84.78,68.95,132.993,94.236,0,0-15.284,0-15.284,0,32.046-18.008,63.124-38.686,91.442-62.113,114.546-93.087,188.016-229.599,218.965-372.695,2.573-11.941,4.917-23.922,6.964-35.941,0,0,32.555,30.682,32.555,30.682-71.963,18.798-145.73,35.853-220.662,39.873-41.741,1.286-88.5.264-124.685-24.942-16.491-11.769-29.038-30.214-32.955-50.387-6.006-27.765,3.12-57.574,10.118-83.036,1.252-4.721,2.375-9.213,3.174-13.276,1.093-5.771,2.002-11.637.958-15.783-.107-.326-.162-.4-.197-.455-.039-.052-.073-.111-.272-.323h0ZM392.295,19.655c24.391,25.267,20.111,58.654,11.536,89.029-4.507,18.003-13.702,42.197-8.86,58.009,5.142,13.855,24.492,18.746,38.765,21.739,27.545,5.092,57.262,4.014,85.386,1.881,50.257-4.159,100.81-13.422,150.29-24.064,19.759-4.25,50.975-11.378,70.829-15.726-5.887,28.807-12.828,64.117-20.689,92.114-50.777,186.318-168.979,347.429-341.85,436.976,0,0-7.836,4.163-7.836,4.163,0,0-7.447-4.162-7.447-4.162C201.808,591.326,96.358,447.285,38.888,275.217,20.441,219.294,6.314,161.566,1.161,102.756c0,0-.102-1.699-.102-1.699,0,0-1.059-17.629-1.059-17.629l18.88-5.123C80.466,61.952,217.769,23.284,277.827,9.36,297.774,4.908,318.104.485,339.049.016c19.617-.34,38.934,4.826,53.247,19.64h0Z"
+          />
+        </svg>
+        <span class="nav-logo-text">TOS <span>Guardian</span></span>
+      </a>
+      <div class="nav-right">
+        <button class="theme-toggle" id="themeToggle">
+          <span id="themeIcon">☀️</span>
+          <span id="themeLabel">Light</span>
+        </button>
+        <a href="#download" class="nav-cta">Download Free</a>
+      </div>
+    </nav>
 
-    const downloadBtn = document.getElementById('download');
-    if (downloadBtn) downloadBtn.addEventListener('click', () => console.log('Beta download triggered'));
-  </script>
-</body>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-eyebrow">Free Chrome Extension · Open Beta</div>
+        <h1 class="reveal">Know <em>Exactly</em><br />What You Sign.</h1>
+        <p class="hero-sub reveal">
+          Terms of service agreements are designed to be ignored.<br />TOS
+          Guardian turns that advantage around &mdash; giving you clear,
+          plain-English intelligence before you click Accept.
+        </p>
+
+        <div class="hero-actions reveal">
+          <a href="tos-guardian.zip" download class="btn-primary" id="download">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 2v8M5 7l3 3 3-3M2 12h12"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Download Beta — Free
+          </a>
+          <span class="hero-note"
+            >Chrome only &nbsp;·&nbsp; unzip &amp; load in
+            chrome://extensions</span
+          >
+          <a href="#instructions" class="download-instructions"
+            >Install instructions</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST BAR -->
+    <div class="trust-bar">
+      <div class="trust-bar-inner">
+        <div class="trust-item">
+          <span class="dot"></span> Runs locally in your browser
+        </div>
+        <div class="trust-item">
+          <span class="dot"></span> No account required
+        </div>
+        <div class="trust-item"><span class="dot"></span> Free during beta</div>
+      </div>
+    </div>
+
+    <!-- WHAT IT CATCHES -->
+    <div class="section">
+      <p class="section-label reveal">What it catches</p>
+      <h2 class="reveal">The clauses companies <em>hope you skip</em></h2>
+      <p class="section-intro reveal">
+        Most people scroll past thousands of words of legal text. TOS Guardian
+        uses AI to surface what actually matters, ranked by how much it should
+        concern you.
+      </p>
+
+      <div class="flags-grid reveal">
+        <div class="flag-card high">
+          <div class="flag-severity">High Concern</div>
+          <div class="flag-title">Forced Arbitration Clause</div>
+          <div class="flag-desc">
+            You waive your right to sue in court. Disputes go to a private
+            arbitrator — usually paid by the company.
+          </div>
+        </div>
+        <div class="flag-card high">
+          <div class="flag-severity">High Concern</div>
+          <div class="flag-title">Data Sold to Third Parties</div>
+          <div class="flag-desc">
+            The service can sell or share your personal data with advertisers or
+            data brokers.
+          </div>
+        </div>
+        <div class="flag-card high">
+          <div class="flag-severity">High Concern</div>
+          <div class="flag-title">Auto-Renewal Trap</div>
+          <div class="flag-desc">
+            Free trials silently convert to paid subscriptions without clear
+            notice to the user.
+          </div>
+        </div>
+        <div class="flag-card medium">
+          <div class="flag-severity">Worth Noting</div>
+          <div class="flag-title">Content Ownership Claim</div>
+          <div class="flag-desc">
+            The platform claims a license to use, modify, or distribute anything
+            you upload.
+          </div>
+        </div>
+        <div class="flag-card medium">
+          <div class="flag-severity">Worth Noting</div>
+          <div class="flag-title">Unilateral Terms Changes</div>
+          <div class="flag-desc">
+            The company can change these terms at any time, with or without
+            notifying you first.
+          </div>
+        </div>
+        <div class="flag-card low">
+          <div class="flag-severity">Minor Point</div>
+          <div class="flag-title">Broad Liability Waiver</div>
+          <div class="flag-desc">
+            The service disclaims responsibility for virtually any harm caused
+            by their platform.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr
+      style="border: 0; height: 1px; background: var(--border-ui); margin: 0 6%"
+    />
+
+    <!-- HOW IT WORKS -->
+    <div class="section" id="instructions">
+      <p class="section-label reveal">How it works</p>
+      <h2 class="reveal">Up and running <em>in under two minutes</em></h2>
+
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">Step 01</div>
+          <div class="step-title">Install the extension</div>
+          <div class="step-desc">
+            Download the zip, unpack it, and load it into Chrome's developer
+            mode. Takes about 60 seconds.
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">Step 02</div>
+          <div class="step-title">Add your API key</div>
+          <div class="step-desc">
+            Paste your free Google AI Studio key into the extension popup.
+            One-time setup, nothing stored on our servers.
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">Step 03</div>
+          <div class="step-title">Read what matters</div>
+          <div class="step-desc">
+            When you land on a T&C page, click Analyze. Make an informed
+            decision in seconds.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MailerLite Universal -->
+    <script>
+      (function (w, d, e, u, f, l, n) {
+        ((w[f] =
+          w[f] ||
+          function () {
+            (w[f].q = w[f].q || []).push(arguments);
+          }),
+          (l = d.createElement(e)),
+          (l.async = 1),
+          (l.src = u),
+          (n = d.getElementsByTagName(e)[0]),
+          n.parentNode.insertBefore(l, n));
+      })(
+        window,
+        document,
+        "script",
+        "https://assets.mailerlite.com/js/universal.js",
+        "ml",
+      );
+      ml("account", "2150699");
+    </script>
+
+    <!-- EMAIL SECTION (only the plain MailerLite embed kept) -->
+    <div class="email-section">
+      <div class="email-section-inner">
+        <p class="section-label reveal">Stay informed</p>
+        <h2 class="reveal">
+          Get notified when we<br /><em>launch on the Chrome Store</em>
+        </h2>
+
+        <!-- Only the MailerLite embed remains (no custom form or JS) -->
+        <div class="ml-embedded" data-form="ZtjZJC"></div>
+
+        <p class="email-fine-print">
+          Your email will only be used to notify you about TOS Guardian's public
+          release. No newsletter. No marketing. No permanent storage.
+        </p>
+      </div>
+    </div>
+
+    <!-- PRICING SECTION -->
+    <div class="section" id="pricing">
+      <p class="section-label reveal">Pricing</p>
+      <h2 class="reveal">Simple, transparent <em>protection</em></h2>
+      <p class="section-intro reveal">
+        Choose the plan that fits your browsing habits.
+      </p>
+
+      <div class="pricing-grid">
+        <!-- Free Tier -->
+        <div class="price-card reveal">
+          <div
+            style="
+              font-family: &quot;Courier Prime&quot;, monospace;
+              color: var(--gold);
+              margin-bottom: 20px;
+              font-weight: 700;
+              text-transform: uppercase;
+            "
+          >
+            Starter
+          </div>
+          <div class="price-amount">$0<span>/mo</span></div>
+          <p style="color: var(--text-muted); font-size: 15px">
+            Basic analysis for occasional use.
+          </p>
+          <ul class="price-features">
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              5 analyses per day
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              High-severity flags
+            </li>
+            <li class="disabled">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Unlimited scans
+            </li>
+          </ul>
+          <a href="#" class="btn-price">Current Plan</a>
+        </div>
+
+        <!-- Paid Tier -->
+        <div class="price-card featured reveal">
+          <div class="badge">Best Value</div>
+          <div
+            style="
+              font-family: &quot;Courier Prime&quot;, monospace;
+              color: var(--gold);
+              margin-bottom: 20px;
+              font-weight: 700;
+              text-transform: uppercase;
+            "
+          >
+            Guardian Pro
+          </div>
+          <div class="price-amount">$2<span>/mo</span></div>
+          <p style="color: var(--text-muted); font-size: 15px">
+            Complete protection for active users.
+          </p>
+          <ul class="price-features">
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Unlimited analyses
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              All severity levels
+            </li>
+            <li>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Priority Support
+            </li>
+          </ul>
+          <a href="#" class="btn-price">Upgrade Now</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-left">
+        TOS Guardian — The Guardian of your digital rights.
+      </div>
+      <div class="footer-right">Beta v1.0 · Free for testers</div>
+    </footer>
+
+    <script>
+      /* THEME TOGGLE */
+      const themeToggle = document.getElementById("themeToggle");
+      const themeIcon = document.getElementById("themeIcon");
+      const themeLabel = document.getElementById("themeLabel");
+      const htmlEl = document.documentElement;
+      function syncThemeToggleUi() {
+        const current = htmlEl.getAttribute("data-theme");
+        themeIcon.textContent = current === "dark" ? "☀️" : "🌙";
+        themeLabel.textContent = current === "dark" ? "Light" : "Dark";
+      }
+      syncThemeToggleUi();
+      themeToggle.addEventListener("click", () => {
+        const current = htmlEl.getAttribute("data-theme");
+        const target = current === "dark" ? "light" : "dark";
+        htmlEl.setAttribute("data-theme", target);
+        syncThemeToggleUi();
+      });
+
+      /* SCROLL REVEAL */
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((el) => {
+            if (el.isIntersecting) {
+              el.target.classList.add("visible");
+              observer.unobserve(el.target);
+            }
+          });
+        },
+        { threshold: 0.07 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      const downloadBtn = document.getElementById("download");
+      if (downloadBtn)
+        downloadBtn.addEventListener("click", () =>
+          console.log("Beta download triggered"),
+        );
+    </script>
+  </body>
 </html>
