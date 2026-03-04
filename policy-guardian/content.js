@@ -1,4 +1,4 @@
-// Policy Guardian - Content Script
+﻿// Policy Guardian - Content Script
 // Detects Terms & Conditions pages and triggers analysis
 
 (function() {
@@ -20,6 +20,8 @@
     'terms', 'terms of service', 'terms of use', 'terms and conditions',
     'privacy', 'privacy policy', 'user agreement', 'eula', 'legal'
   ];
+  const CONSENT_STORAGE_KEY = 'analysisConsentVersion';
+  const CONSENT_VERSION = 1;
   const SEARCH_ENGINE_HOST_PATTERNS = [
     /(^|\.)google\./i,
     /(^|\.)duckduckgo\.com$/i,
@@ -197,13 +199,43 @@
     return text.replace(/\s+/g, ' ').trim().substring(0, 8000);
   }
 
+  async function hasAcceptedAnalysisConsent() {
+    try {
+      const stored = await chrome.storage.local.get(CONSENT_STORAGE_KEY);
+      return Number(stored?.[CONSENT_STORAGE_KEY]) === CONSENT_VERSION;
+    } catch {
+      return false;
+    }
+  }
+
+  async function storeAnalysisConsentAccepted() {
+    try {
+      await chrome.storage.local.set({ [CONSENT_STORAGE_KEY]: CONSENT_VERSION });
+    } catch {
+      // If storage fails, user may be prompted again next time.
+    }
+  }
+
+  async function ensureAnalysisConsent() {
+    const alreadyAccepted = await hasAcceptedAnalysisConsent();
+    if (alreadyAccepted) return true;
+
+    const accepted = window.confirm(
+      'Policy Guardian will send selected Terms/Privacy text and document URLs to Google AI (Gemini) to generate a summary. Continue?'
+    );
+    if (!accepted) return false;
+
+    await storeAnalysisConsentAccepted();
+    return true;
+  }
+
   function injectPanel(context = detectPageContext()) {
     if (document.getElementById('policy-guardian-panel')) return;
 
     const isDetected = context.tosPage || context.accountPage;
     const badgeText = context.tosPage
-      ? '⚠️ Terms/Policy Page Detected'
-      : '🧾 Account Creation Page Detected';
+      ? 'âš ï¸ Terms/Policy Page Detected'
+      : 'ðŸ§¾ Account Creation Page Detected';
     const hintText = context.tosPage
       ? 'Summarize this policy in plain English.'
       : 'Found an account creation flow. Summarize will analyze Terms/Privacy documents for this service.';
@@ -221,7 +253,7 @@
         </div>
         <div id="tg-controls">
           <button id="tg-analyze-btn">Analyze</button>
-          <button id="tg-close-btn">✕</button>
+          <button id="tg-close-btn">âœ•</button>
         </div>
       </div>
       <div id="tg-body">
@@ -531,12 +563,22 @@
     const results = document.getElementById('tg-results');
     const status = document.getElementById('tg-status');
     const context = detectPageContext();
+    const idleLabel = context.tosPage ? 'Summarize' : 'Summarize Docs';
+
+    const consentAccepted = await ensureAnalysisConsent();
+    if (!consentAccepted) {
+      btn.disabled = false;
+      btn.textContent = idleLabel;
+      status.style.display = 'block';
+      results.style.display = 'none';
+      return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'Analyzing...';
     status.style.display = 'none';
     results.style.display = 'block';
-    results.innerHTML = `<div class="tg-loading"><div class="tg-spinner"></div> Reading the fine print…</div>`;
+    results.innerHTML = `<div class="tg-loading"><div class="tg-spinner"></div> Reading the fine printâ€¦</div>`;
 
     const pageLastModified = document.lastModified || null;
     const pageUrl = window.location.href;
@@ -558,7 +600,7 @@
       if (response && response.error === 'NO_API_KEY') {
         results.innerHTML = `
           <div class="tg-no-key">
-            <strong style="color:var(--tg-gold)">🔑 API Key Required</strong><br><br>
+            <strong style="color:var(--tg-gold)">ðŸ”‘ API Key Required</strong><br><br>
             To analyze Terms & Conditions, Policy Guardian needs your Google AI Studio API key.<br><br>
             1. Click the extension icon in Chrome's toolbar<br>
             2. Enter your <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio API key</a><br>
@@ -593,15 +635,6 @@
       html += `<div class="tg-hint" style="margin-bottom:8px">Summarized docs: ${links}</div>`;
     }
 
-    if (data.cache_status) {
-      const cacheLabel = data.cache_status === 'HIT'
-        ? 'Loaded from policy history'
-        : data.cache_status === 'REFRESHED'
-          ? 'Policy changed, summary regenerated'
-          : 'New policy summary generated';
-      html += `<div class="tg-hint" style="margin-bottom:10px;color:var(--tg-gold)">${escapeHtml(cacheLabel)}</div>`;
-    }
-
     const riskValueRaw = (data.overall_risk || 'Unknown').toString();
     const riskValue = riskValueRaw.toUpperCase();
     const riskClass = riskValue.includes('HIGH')
@@ -623,9 +656,9 @@
     `;
 
     const groups = [
-      { label: `🔴 High Concern (${highFlags.length})`, items: highFlags },
-      { label: `🟡 Worth Noting (${medFlags.length})`, items: medFlags },
-      { label: `🔵 Minor Points (${lowFlags.length})`, items: lowFlags },
+      { label: `ðŸ”´ High Concern (${highFlags.length})`, items: highFlags },
+      { label: `ðŸŸ¡ Worth Noting (${medFlags.length})`, items: medFlags },
+      { label: `ðŸ”µ Minor Points (${lowFlags.length})`, items: lowFlags },
     ];
 
     for (const group of groups) {
@@ -663,7 +696,7 @@
       html += '</div>';
     }
 
-    html += `<div class="tg-footer">Powered by Gemini · Always read original document</div>`;
+    html += `<div class="tg-footer">Powered by Gemini Â· Always read original document</div>`;
     container.innerHTML = html;
   }
 
@@ -690,3 +723,5 @@
   });
 
 })();
+
+

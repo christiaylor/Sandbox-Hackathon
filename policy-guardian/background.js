@@ -1,7 +1,4 @@
-// Policy Guardian - Background Service Worker (Google AI Studio / Gemini)
-// Uses local Mongo-backed cache API to avoid regenerating summaries for unchanged policies.
-
-const DEFAULT_CACHE_API_BASE = "http://localhost:8787";
+﻿// Policy Guardian - Background Service Worker (Google AI Studio / Gemini)
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "ANALYZE_TOS") {
@@ -28,13 +25,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     analyzePolicyFromUrls(Array.isArray(message.urls) ? message.urls : [])
       .then(sendResponse)
       .catch((err) => sendResponse({ error: err.message }));
-    return true;
-  }
-
-  if (message.type === "GET_POLICY_HISTORY") {
-    getPolicyHistory(message.query || "", message.limit || 30)
-      .then((result) => sendResponse({ ok: true, ...result }))
-      .catch((err) => sendResponse({ ok: false, error: err.message }));
     return true;
   }
 });
@@ -139,37 +129,8 @@ function extractTextFromHtml(html) {
   return stripped.substring(0, 12000);
 }
 
-async function analyzePolicy({ text, url, pageLastModified }) {
-  const contentHash = await hashText(text || "");
-  const lookup = await lookupCachedSummary({ url, contentHash });
-
-  if (lookup?.status === "HIT" && lookup.summary) {
-    return {
-      ...lookup.summary,
-      cache_status: "HIT",
-      policy_updated_at: lookup.policyUpdatedAt || null,
-      generated_at: lookup.generatedAt || null,
-    };
-  }
-
-  const summary = await analyzeWithGemini(text);
-  if (summary?.error) {
-    return summary;
-  }
-
-  await upsertSummary({
-    url,
-    contentHash,
-    summary,
-    sourceLastModified: pageLastModified,
-  });
-
-  return {
-    ...summary,
-    cache_status: lookup?.status === "STALE" ? "REFRESHED" : "MISS",
-    policy_updated_at: new Date().toISOString(),
-    generated_at: new Date().toISOString(),
-  };
+async function analyzePolicy({ text }) {
+  return analyzeWithGemini(text);
 }
 
 async function hashText(text) {
@@ -177,67 +138,6 @@ async function hashText(text) {
   const digest = await crypto.subtle.digest("SHA-256", encoded);
   const bytes = Array.from(new Uint8Array(digest));
   return bytes.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function lookupCachedSummary({ url, contentHash }) {
-  if (!url || !contentHash) return null;
-  const cacheApiBase = await getCacheApiBase();
-
-  try {
-    const response = await fetch(`${cacheApiBase}/api/policies/lookup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, contentHash }),
-    });
-
-    if (!response.ok) return null;
-    return await response.json();
-  } catch {
-    // Cache API is optional in dev; Gemini flow still works when unavailable.
-    return null;
-  }
-}
-
-async function upsertSummary({ url, contentHash, summary, sourceLastModified }) {
-  if (!url || !contentHash || !summary) return;
-  const cacheApiBase = await getCacheApiBase();
-
-  try {
-    await fetch(`${cacheApiBase}/api/policies/upsert`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        url,
-        contentHash,
-        summary,
-        sourceLastModified,
-      }),
-    });
-  } catch {
-    // Ignore cache write failures; analysis is already available to the user.
-  }
-}
-
-async function getPolicyHistory(query, limit) {
-  const cacheApiBase = await getCacheApiBase();
-  const params = new URLSearchParams();
-  if (query) params.set("query", query);
-  params.set("limit", String(Math.max(1, Math.min(Number(limit) || 30, 100))));
-
-  const response = await fetch(`${cacheApiBase}/api/policies/history?${params.toString()}`);
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error || `History API error ${response.status}`);
-  }
-  return await response.json();
-}
-
-async function getCacheApiBase() {
-  const { cacheApiBaseUrl } = await chrome.storage.local.get("cacheApiBaseUrl");
-  if (typeof cacheApiBaseUrl === "string" && cacheApiBaseUrl.trim()) {
-    return cacheApiBaseUrl.trim().replace(/\/+$/, "");
-  }
-  return DEFAULT_CACHE_API_BASE;
 }
 
 async function analyzeWithGemini(tosText) {

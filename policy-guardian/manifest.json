@@ -1,9 +1,9 @@
-{
+﻿{
   "manifest_version": 3,
   "name": "Policy Guardian",
   "version": "1.0.0",
   "description": "Automatically detects Terms & Conditions and highlights red flags using AI analysis.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": [
     "<all_urls>",
     "https://generativelanguage.googleapis.com/*"

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -84,33 +84,6 @@
       padding: 18px 20px;
     }
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      background: var(--tg-surface);
-      border: 1px solid var(--tg-border);
-      border-radius: 8px;
-      color: var(--tg-muted);
-      padding: 8px;
-      font-size: 12px;
-      font-family: 'Georgia', serif;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      border-color: var(--tg-gold);
-      color: var(--tg-gold);
-      background: var(--tg-accent-soft);
-    }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
     label {
       display: block;
       font-size: 11px;
@@ -134,23 +107,6 @@
     }
 
     input[type="password"]:focus {
-      border-color: var(--tg-gold);
-    }
-
-    input[type="text"] {
-      width: 100%;
-      background: var(--tg-surface-2);
-      border: 1px solid var(--tg-border);
-      border-radius: 8px;
-      padding: 9px 12px;
-      color: var(--tg-body);
-      font-size: 13px;
-      font-family: monospace;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input[type="text"]:focus {
       border-color: var(--tg-gold);
     }
 
@@ -183,73 +139,6 @@
       border: none;
       border-top: 1px solid var(--tg-border);
       margin: 16px 0;
-    }
-
-    .history-toolbar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .refresh-btn {
-      background: var(--tg-surface);
-      border: 1px solid var(--tg-border);
-      color: var(--tg-body);
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .history-list {
-      max-height: 260px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .history-empty {
-      font-size: 11px;
-      color: var(--tg-muted);
-      text-align: center;
-      padding: 16px 6px;
-      border: 1px dashed var(--tg-border);
-      border-radius: 8px;
-    }
-
-    .history-item {
-      border: 1px solid var(--tg-border);
-      border-radius: 10px;
-      padding: 8px 10px;
-      background: var(--tg-surface-2);
-    }
-
-    .history-url {
-      color: var(--tg-gold);
-      font-size: 11px;
-      text-decoration: none;
-      display: block;
-      margin-bottom: 4px;
-      line-height: 1.4;
-      word-break: break-all;
-    }
-
-    .history-meta {
-      color: var(--tg-body);
-      font-size: 10px;
-      line-height: 1.5;
-    }
-
-    .history-risk {
-      display: inline-block;
-      margin-top: 4px;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid var(--tg-border);
-      color: var(--tg-bold);
     }
 
     .scan-btn {
@@ -308,45 +197,22 @@
   </div>
 
   <div class="body">
-    <div class="tabs">
-      <button id="settingsTabBtn" class="tab-btn active">Settings</button>
-      <button id="historyTabBtn" class="tab-btn">History</button>
+    <div class="key-row">
+      <label>Google AI Studio Key</label>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank">Get key -></a>
     </div>
+    <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
 
-    <div id="settingsPanel" class="tab-panel active">
-      <div class="key-row">
-        <label>Google AI Studio Key</label>
-        <a href="https://aistudio.google.com/app/apikey" target="_blank">Get key →</a>
-      </div>
-      <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off">
+    <button class="save-btn" id="saveBtn">Save Settings</button>
+    <div class="status" id="status"></div>
 
-      <hr class="divider">
+    <hr class="divider">
 
-      <label>Cache API Base URL</label>
-      <input type="text" id="cacheApiBaseUrl" placeholder="http://localhost:8787" autocomplete="off">
+    <button class="scan-btn" id="scanBtn">Scan This Page Now</button>
 
-      <button class="save-btn" id="saveBtn">Save Settings</button>
-      <div class="status" id="status"></div>
-
-      <hr class="divider">
-
-      <button class="scan-btn" id="scanBtn">🔍 Scan This Page Now</button>
-
-      <div class="how-it-works">
-        Policy Guardian <span>auto-detects</span> Terms & Conditions pages and shows a panel to analyze red flags with AI. Use "Scan This Page" to trigger it manually on any page.
-      </div>
+    <div class="how-it-works">
+      Policy Guardian <span>auto-detects</span> Terms & Conditions pages and shows a panel to analyze red flags with AI. Use "Scan This Page" to trigger it manually on any page.
     </div>
-
-    <div id="historyPanel" class="tab-panel">
-      <label>Search History</label>
-      <div class="history-toolbar">
-        <input type="text" id="historySearch" placeholder="Filter by URL">
-        <button id="historyRefreshBtn" class="refresh-btn">Refresh</button>
-      </div>
-      <div id="historyStatus" class="status"></div>
-      <div id="historyList" class="history-list"></div>
-    </div>
-
   </div>
 
   <script src="popup.js"></script>
