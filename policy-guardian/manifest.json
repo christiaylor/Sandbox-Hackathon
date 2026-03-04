@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "TOS Guardian",
+  "name": "Policy Guardian",
   "version": "1.0.0",
   "description": "Automatically detects Terms & Conditions and highlights red flags using AI analysis.",
   "permissions": ["activeTab", "scripting", "storage"],

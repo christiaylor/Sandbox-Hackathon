@@ -1,7 +1,7 @@
 services:
   mongo:
     image: mongo:7
-    container_name: tos-guardian-mongo
+    container_name: policy-guardian-mongo
     restart: unless-stopped
     ports:
       - "27017:27017"
@@ -12,11 +12,11 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: tos-guardian-cache-api
+    container_name: policy-guardian-cache-api
     restart: unless-stopped
     environment:
       - PORT=8787
-      - DB_NAME=tos_guardian
+      - DB_NAME=policy_guardian
       - MONGODB_URI=mongodb://mongo:27017
     depends_on:
       - mongo

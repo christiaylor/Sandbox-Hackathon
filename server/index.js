@@ -4,7 +4,7 @@ const { MongoClient } = require("mongodb");
 
 const PORT = Number(process.env.PORT || 8787);
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
-const DB_NAME = process.env.DB_NAME || "tos_guardian";
+const DB_NAME = process.env.DB_NAME || "policy_guardian";
 const COLLECTION_NAME = "policy_summaries";
 
 const app = express();

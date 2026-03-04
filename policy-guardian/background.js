@@ -1,4 +1,4 @@
-// TOS Guardian - Background Service Worker (Google AI Studio / Gemini)
+// Policy Guardian - Background Service Worker (Google AI Studio / Gemini)
 // Uses local Mongo-backed cache API to avoid regenerating summaries for unchanged policies.
 
 const DEFAULT_CACHE_API_BASE = "http://localhost:8787";
@@ -106,7 +106,7 @@ async function analyzePolicyFromUrls(policyUrls) {
     .map((d, i) => `DOCUMENT ${i + 1}: ${d.url}\n${d.text}`)
     .join("\n\n");
 
-  let origin = "https://tos-guardian.local";
+  let origin = "https://policy-guardian.local";
   try {
     origin = new URL(docs[0].url).origin;
   } catch {}
