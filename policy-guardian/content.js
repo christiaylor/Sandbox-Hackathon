@@ -56,18 +56,24 @@
   function isAccountCreationPage() {
     const title = document.title.toLowerCase();
     const url = window.location.href.toLowerCase();
+    const pathname = window.location.pathname.toLowerCase();
     const headings = Array.from(document.querySelectorAll('h1, h2, h3')).map(el => el.textContent.toLowerCase()).join(' ');
     const buttonText = Array.from(document.querySelectorAll('button, [role="button"], input[type="submit"]'))
       .map(el => (el.value || el.textContent || '').toLowerCase())
       .join(' ');
+    const linkText = Array.from(document.querySelectorAll('a'))
+      .map(el => (el.textContent || '').toLowerCase())
+      .join(' ');
     const formsText = Array.from(document.querySelectorAll('form'))
       .map((el) => (el.innerText || el.textContent || '').toLowerCase())
       .join(' ');
-    const authPath = /\/(sign[-_ ]?up|signup|register|create[-_ ]?account|join|auth|login)\b/.test(url);
+    const authPath = /\/(sign[-_ ]?up|signup|register|create[-_ ]?account|join|auth)\b/.test(pathname);
+    const signInPath = /\/(sign[-_ ]?in|signin|log[-_ ]?in|login)\b/.test(pathname);
 
     const hasSignupLanguage = ACCOUNT_KEYWORDS.some(kw =>
-      title.includes(kw) || url.includes(kw.replace(/\s+/g, '')) || headings.includes(kw) || buttonText.includes(kw)
+      title.includes(kw) || url.includes(kw.replace(/\s+/g, '')) || headings.includes(kw) || buttonText.includes(kw) || linkText.includes(kw)
     );
+    const hasCreateAccountCta = /(create account|sign up|signup|register|join now|start free trial)/.test(`${buttonText} ${linkText}`);
 
     const hasPassword = !!document.querySelector('input[type="password"]');
     const hasEmail = !!document.querySelector('input[type="email"], input[name*="email" i], input[id*="email" i]');
@@ -76,7 +82,14 @@
     const hasSocialAuth = /(continue|sign|log).*(google|github|gitlab|apple|microsoft|facebook)|google|github|gitlab|apple|microsoft|facebook/.test(buttonText);
     const hasAuthUiElements = hasEmail || hasPassword || hasSocialAuth;
 
-    return (hasSignupLanguage || authPath) && (hasAuthUiElements || hasConsentLanguage || hasLegalAgreementAnchors);
+    // Avoid false positives on plain sign-in pages with footer legal links.
+    if (signInPath && !hasSignupLanguage && !hasCreateAccountCta) {
+      return false;
+    }
+
+    return (hasSignupLanguage || (authPath && hasCreateAccountCta)) &&
+      (hasAuthUiElements || hasConsentLanguage) &&
+      (hasSignupLanguage || hasCreateAccountCta || !hasLegalAgreementAnchors);
   }
 
   function findLegalLinks() {
